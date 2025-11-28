@@ -110,6 +110,9 @@
       },
       "setpoint_calculated": {
         "name": "Setpoint calculated"
+      },
+      "boost_time_remaining": {
+        "name": "Boost time remaining"
       }
     },
     "number": {
@@ -149,6 +152,26 @@
           "winter": "Winter",
           "auto": "Auto"
         }
+      },
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "schedule": "Schedule"
+        }
+      },
+      "legionella_day": {
+        "name": "Legionella day",
+        "state": {
+          "sunday": "Sunday",
+          "monday": "Monday",
+          "tuesday": "Tuesday",
+          "wednesday": "Wednesday",
+          "thursday": "Thursday",
+          "friday": "Friday",
+          "saturday": "Saturday"
+        }
       }
     },
     "switch": {
@@ -157,6 +180,11 @@
       },
       "legionella_start": {
         "name": "Legionella start"
+      }
+    },
+    "button": {
+      "boost": {
+        "name": "Boost"
       }
     }
   }

@@ -13,7 +13,7 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["number", "select", "sensor", "switch"]
+PLATFORMS: list[str] = ["button", "number", "select", "sensor", "switch"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -54,6 +54,30 @@ OPERATING_MODE_OPTIONS: list[str] = list(OPERATING_MODE_MAPPING.values())
 
 # Reverse mapping for setting values
 OPERATING_MODE_REVERSE: dict[str, int] = {v: k for k, v in OPERATING_MODE_MAPPING.items()}
+
+# DHW mode - API parameter 119
+DHW_MODE_MAPPING: dict[int, str] = {
+    0: "off",
+    1: "on",
+    2: "schedule",
+}
+
+DHW_MODE_OPTIONS: list[str] = list(DHW_MODE_MAPPING.values())
+DHW_MODE_REVERSE: dict[str, int] = {v: k for k, v in DHW_MODE_MAPPING.items()}
+
+# Legionella day - API parameter 137
+LEGIONELLA_DAY_MAPPING: dict[int, str] = {
+    0: "sunday",
+    1: "monday",
+    2: "tuesday",
+    3: "wednesday",
+    4: "thursday",
+    5: "friday",
+    6: "saturday",
+}
+
+LEGIONELLA_DAY_OPTIONS: list[str] = list(LEGIONELLA_DAY_MAPPING.values())
+LEGIONELLA_DAY_REVERSE: dict[str, int] = {v: k for k, v in LEGIONELLA_DAY_MAPPING.items()}
 
 
 class DeviceType(StrEnum):
@@ -117,6 +141,17 @@ class EconetSelectEntityDescription:
 @dataclass(frozen=True)
 class EconetSwitchEntityDescription:
     """Describes an Econet switch entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API
+    device_type: DeviceType = DeviceType.CONTROLLER
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
+
+
+@dataclass(frozen=True)
+class EconetButtonEntityDescription:
+    """Describes an Econet button entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -349,6 +384,17 @@ DHW_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:thermometer-auto",
         precision=0,
     ),
+    # Boost time remaining
+    EconetSensorEntityDescription(
+        key="boost_time_remaining",
+        param_id="1431",
+        device_type=DeviceType.DHW,
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement="min",
+        icon="mdi:timer-sand",
+        precision=0,
+    ),
 )
 
 
@@ -432,5 +478,42 @@ DHW_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         param_id="135",
         device_type=DeviceType.DHW,
         icon="mdi:bacteria",
+    ),
+)
+
+
+# DHW select entities
+DHW_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
+    # DHW mode (off/on/schedule)
+    EconetSelectEntityDescription(
+        key="mode",
+        param_id="119",
+        device_type=DeviceType.DHW,
+        icon="mdi:water-boiler",
+        options=DHW_MODE_OPTIONS,
+        value_map=DHW_MODE_MAPPING,
+        reverse_map=DHW_MODE_REVERSE,
+    ),
+    # Legionella protection day
+    EconetSelectEntityDescription(
+        key="legionella_day",
+        param_id="137",
+        device_type=DeviceType.DHW,
+        icon="mdi:calendar",
+        options=LEGIONELLA_DAY_OPTIONS,
+        value_map=LEGIONELLA_DAY_MAPPING,
+        reverse_map=LEGIONELLA_DAY_REVERSE,
+    ),
+)
+
+
+# DHW button entities
+DHW_BUTTONS: tuple[EconetButtonEntityDescription, ...] = (
+    # Boost - trigger immediate DHW heating
+    EconetButtonEntityDescription(
+        key="boost",
+        param_id="115",
+        device_type=DeviceType.DHW,
+        icon="mdi:rocket-launch",
     ),
 )
