@@ -49,7 +49,8 @@ OPERATING_MODE_MAPPING: dict[int, str] = {
     6: "auto",
 }
 
-OPERATING_MODE_OPTIONS: list[str] = ["summer", "winter", "auto"]
+OPERATING_MODE_OPTIONS: list[str] = list(OPERATING_MODE_MAPPING.values())
+
 
 # Reverse mapping for setting values
 OPERATING_MODE_REVERSE: dict[str, int] = {v: k for k, v in OPERATING_MODE_MAPPING.items()}

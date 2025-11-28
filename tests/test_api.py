@@ -190,8 +190,8 @@ class TestSetParam:
         mock_session.get.assert_called_once()
         call_args = mock_session.get.call_args
         assert "/econet/newParam" in call_args[0][0]
-        assert call_args[1]["params"]["newParamIndex"] == 103
-        assert call_args[1]["params"]["newParamValue"] == 45
+        assert call_args[1]["params"]["newParamName"] == "103"
+        assert call_args[1]["params"]["newParamValue"] == "45"
 
     @pytest.mark.asyncio
     async def test_set_param_auth_error(self, mock_session: MagicMock) -> None:

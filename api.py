@@ -95,7 +95,7 @@ class EconetNextApi:
         """Set a parameter value on the device.
 
         Args:
-            param_id: The parameter ID to set.
+            param_id: The parameter ID to set (used as the param name).
             value: The new value.
 
         Returns:
@@ -103,9 +103,10 @@ class EconetNextApi:
 
         """
         url = f"{self._base_url}{API_ENDPOINT_NEW_PARAM}"
+        # API expects newParamName (we use the param ID as name) and newParamValue (JSON encoded)
         params = {
-            "newParamIndex": param_id,
-            "newParamValue": value,
+            "newParamName": str(param_id),
+            "newParamValue": json.dumps(value),
         }
 
         try:
