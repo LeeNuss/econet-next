@@ -320,3 +320,117 @@ CONTROLLER_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         icon="mdi:snowflake",
     ),
 )
+
+
+# ============================================================================
+# DHW (Domestic Hot Water) Device
+# ============================================================================
+
+# DHW sensors - read only
+DHW_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
+    # Temperature sensors
+    EconetSensorEntityDescription(
+        key="dhw_temperature",
+        param_id="61",
+        device_type=DeviceType.DHW,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer",
+        precision=1,
+    ),
+    EconetSensorEntityDescription(
+        key="dhw_setpoint_calculated",
+        param_id="134",
+        device_type=DeviceType.DHW,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer-auto",
+        precision=0,
+    ),
+)
+
+
+# DHW number entities - editable settings
+DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
+    # DHW target temperature
+    EconetNumberEntityDescription(
+        key="dhw_target_temperature",
+        param_id="103",
+        device_type=DeviceType.DHW,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer",
+        native_min_value=35,
+        native_max_value=65,
+    ),
+    # DHW hysteresis
+    EconetNumberEntityDescription(
+        key="dhw_hysteresis",
+        param_id="104",
+        device_type=DeviceType.DHW,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer-lines",
+        native_min_value=5,
+        native_max_value=18,
+    ),
+    # DHW max temperature
+    EconetNumberEntityDescription(
+        key="dhw_max_temperature",
+        param_id="108",
+        device_type=DeviceType.DHW,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer-high",
+        native_min_value=0,
+        native_max_value=75,
+    ),
+    # DHW max temp hysteresis
+    EconetNumberEntityDescription(
+        key="dhw_max_temp_hysteresis",
+        param_id="112",
+        device_type=DeviceType.DHW,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer-lines",
+        native_min_value=0,
+        native_max_value=10,
+    ),
+    # DHW load time
+    EconetNumberEntityDescription(
+        key="dhw_load_time",
+        param_id="113",
+        device_type=DeviceType.DHW,
+        icon="mdi:timer",
+        native_min_value=0,
+        native_max_value=50,
+    ),
+    # Legionella settings
+    EconetNumberEntityDescription(
+        key="dhw_legionella_temperature",
+        param_id="136",
+        device_type=DeviceType.DHW,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:bacteria",
+        native_min_value=60,
+        native_max_value=80,
+    ),
+    EconetNumberEntityDescription(
+        key="dhw_legionella_hour",
+        param_id="138",
+        device_type=DeviceType.DHW,
+        icon="mdi:clock",
+        native_min_value=0,
+        native_max_value=23,
+    ),
+)
+
+
+# DHW switch entities
+DHW_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+    # Legionella protection
+    EconetSwitchEntityDescription(
+        key="dhw_legionella_start",
+        param_id="135",
+        device_type=DeviceType.DHW,
+        icon="mdi:bacteria",
+    ),
+)

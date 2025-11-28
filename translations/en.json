@@ -104,6 +104,12 @@
       },
       "alarm_bits_5": {
         "name": "Alarm bits 5"
+      },
+      "dhw_temperature": {
+        "name": "DHW temperature"
+      },
+      "dhw_setpoint_calculated": {
+        "name": "DHW setpoint calculated"
       }
     },
     "number": {
@@ -112,6 +118,27 @@
       },
       "summer_mode_off": {
         "name": "Summer mode off"
+      },
+      "dhw_target_temperature": {
+        "name": "DHW target temperature"
+      },
+      "dhw_hysteresis": {
+        "name": "DHW hysteresis"
+      },
+      "dhw_max_temperature": {
+        "name": "DHW max temperature"
+      },
+      "dhw_max_temp_hysteresis": {
+        "name": "DHW max temp hysteresis"
+      },
+      "dhw_load_time": {
+        "name": "DHW load time"
+      },
+      "dhw_legionella_temperature": {
+        "name": "DHW legionella temperature"
+      },
+      "dhw_legionella_hour": {
+        "name": "DHW legionella hour"
       }
     },
     "select": {
@@ -127,6 +154,9 @@
     "switch": {
       "cooling_support": {
         "name": "Cooling support"
+      },
+      "dhw_legionella_start": {
+        "name": "DHW legionella start"
       }
     }
   }

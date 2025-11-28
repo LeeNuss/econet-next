@@ -7,7 +7,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONTROLLER_NUMBERS, DOMAIN, EconetNumberEntityDescription
+from .const import (
+    CONTROLLER_NUMBERS,
+    DHW_NUMBERS,
+    DOMAIN,
+    EconetNumberEntityDescription,
+)
 from .coordinator import EconetNextCoordinator
 from .entity import EconetNextEntity
 
@@ -35,6 +40,21 @@ async def async_setup_entry(
                 description.key,
                 description.param_id,
             )
+
+    # Add DHW number entities if DHW device should be created
+    dhw_temp_param = coordinator.get_param("61")
+    if dhw_temp_param is not None:
+        dhw_temp_value = dhw_temp_param.get("value")
+        if dhw_temp_value is not None and dhw_temp_value != 999.0:
+            for description in DHW_NUMBERS:
+                if coordinator.get_param(description.param_id) is not None:
+                    entities.append(EconetNextNumber(coordinator, description))
+                else:
+                    _LOGGER.debug(
+                        "Skipping DHW number %s - parameter %s not found",
+                        description.key,
+                        description.param_id,
+                    )
 
     async_add_entities(entities)
 
