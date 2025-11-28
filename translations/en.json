@@ -123,6 +123,11 @@
           "auto": "Auto"
         }
       }
+    },
+    "switch": {
+      "cooling_support": {
+        "name": "Cooling support"
+      }
     }
   }
 }

@@ -13,7 +13,7 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["number", "select", "sensor"]
+PLATFORMS: list[str] = ["number", "select", "sensor", "switch"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -111,6 +111,17 @@ class EconetSelectEntityDescription:
     options: list[str] = None  # Available options
     value_map: dict[int, str] = None  # Map API values to option strings
     reverse_map: dict[str, int] = None  # Map option strings to API values
+
+
+@dataclass(frozen=True)
+class EconetSwitchEntityDescription:
+    """Describes an Econet switch entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API
+    device_type: DeviceType = DeviceType.CONTROLLER
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
 
 
 # Controller sensors - read only
@@ -297,5 +308,16 @@ CONTROLLER_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         options=OPERATING_MODE_OPTIONS,
         value_map=OPERATING_MODE_MAPPING,
         reverse_map=OPERATING_MODE_REVERSE,
+    ),
+)
+
+
+# Controller switch entities - boolean settings
+CONTROLLER_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+    # Cooling support toggle - enables cooling mode in addition to heating
+    EconetSwitchEntityDescription(
+        key="cooling_support",
+        param_id="485",
+        icon="mdi:snowflake",
     ),
 )
