@@ -84,9 +84,6 @@
       "work_state_1": {
         "name": "Work state 1"
       },
-      "work_state_2": {
-        "name": "Work state 2"
-      },
       "work_state_3": {
         "name": "Work state 3"
       },
@@ -115,6 +112,16 @@
       },
       "summer_mode_off": {
         "name": "Summer mode off"
+      }
+    },
+    "select": {
+      "operating_mode": {
+        "name": "Operating mode",
+        "state": {
+          "summer": "Summer",
+          "winter": "Winter",
+          "auto": "Auto"
+        }
       }
     }
   }

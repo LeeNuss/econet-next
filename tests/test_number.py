@@ -33,9 +33,7 @@ def mock_api() -> MagicMock:
 
 
 @pytest.fixture
-def coordinator(
-    mock_hass: MagicMock, mock_api: MagicMock, all_params_parsed: dict
-) -> EconetNextCoordinator:
+def coordinator(mock_hass: MagicMock, mock_api: MagicMock, all_params_parsed: dict) -> EconetNextCoordinator:
     """Create a coordinator with data."""
     coordinator = EconetNextCoordinator(mock_hass, mock_api)
     coordinator.data = all_params_parsed
@@ -120,9 +118,7 @@ class TestEconetNextNumber:
         assert number.native_min_value == 10
         assert number.native_max_value == 50
 
-    def test_number_dynamic_min_value(
-        self, coordinator: EconetNextCoordinator
-    ) -> None:
+    def test_number_dynamic_min_value(self, coordinator: EconetNextCoordinator) -> None:
         """Test number uses dynamic min from another param's value."""
         description = EconetNumberEntityDescription(
             key="summer_mode_on",
@@ -137,9 +133,7 @@ class TestEconetNextNumber:
         # From fixture, param 703 (SummerOff) = 22
         assert number.native_min_value == 22.0
 
-    def test_number_dynamic_max_value(
-        self, coordinator: EconetNextCoordinator
-    ) -> None:
+    def test_number_dynamic_max_value(self, coordinator: EconetNextCoordinator) -> None:
         """Test number uses dynamic max from another param's value."""
         description = EconetNumberEntityDescription(
             key="summer_mode_off",
@@ -154,9 +148,7 @@ class TestEconetNextNumber:
         # From fixture, param 702 (SummerOn) = 24
         assert number.native_max_value == 24.0
 
-    def test_number_dynamic_min_fallback(
-        self, coordinator: EconetNextCoordinator
-    ) -> None:
+    def test_number_dynamic_min_fallback(self, coordinator: EconetNextCoordinator) -> None:
         """Test number falls back to static min when dynamic param not found."""
         description = EconetNumberEntityDescription(
             key="test_number",
@@ -171,9 +163,7 @@ class TestEconetNextNumber:
         assert number.native_min_value == 15
 
     @pytest.mark.asyncio
-    async def test_set_native_value(
-        self, coordinator: EconetNextCoordinator
-    ) -> None:
+    async def test_set_native_value(self, coordinator: EconetNextCoordinator) -> None:
         """Test setting a number value."""
         description = EconetNumberEntityDescription(
             key="summer_mode_on",
@@ -187,5 +177,3 @@ class TestEconetNextNumber:
 
         coordinator.api.async_set_param.assert_called_once_with(702, 25)
         coordinator.async_request_refresh.assert_called_once()
-
-

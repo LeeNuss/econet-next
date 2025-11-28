@@ -13,7 +13,7 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["number", "sensor"]
+PLATFORMS: list[str] = ["number", "select", "sensor"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -41,6 +41,18 @@ FLAP_VALVE_STATE_MAPPING: dict[int, str] = {
 }
 
 FLAP_VALVE_STATE_OPTIONS: list[str] = ["ch", "dhw"]
+
+# Operating mode - API parameter 162
+OPERATING_MODE_MAPPING: dict[int, str] = {
+    1: "summer",
+    2: "winter",
+    6: "auto",
+}
+
+OPERATING_MODE_OPTIONS: list[str] = ["summer", "winter", "auto"]
+
+# Reverse mapping for setting values
+OPERATING_MODE_REVERSE: dict[str, int] = {v: k for k, v in OPERATING_MODE_MAPPING.items()}
 
 
 class DeviceType(StrEnum):
@@ -85,6 +97,20 @@ class EconetNumberEntityDescription:
     native_step: float = 1.0
     min_value_param_id: str | None = None  # Dynamic min from another param's value
     max_value_param_id: str | None = None  # Dynamic max from another param's value
+
+
+@dataclass(frozen=True)
+class EconetSelectEntityDescription:
+    """Describes an Econet select entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API
+    device_type: DeviceType = DeviceType.CONTROLLER
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
+    options: list[str] = None  # Available options
+    value_map: dict[int, str] = None  # Map API values to option strings
+    reverse_map: dict[str, int] = None  # Map option strings to API values
 
 
 # Controller sensors - read only
@@ -185,15 +211,10 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:import",
     ),
     # Work state sensors (diagnostic)
+    # Note: work_state_2 (param 162) is exposed as operating_mode select entity
     EconetSensorEntityDescription(
         key="work_state_1",
         param_id="161",
-        entity_category=EntityCategory.DIAGNOSTIC,
-        icon="mdi:state-machine",
-    ),
-    EconetSensorEntityDescription(
-        key="work_state_2",
-        param_id="162",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:state-machine",
     ),
@@ -263,5 +284,18 @@ CONTROLLER_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_min_value=0,
         native_max_value=24,  # Fallback if dynamic max unavailable
         max_value_param_id="702",  # Max is SummerOn value
+    ),
+)
+
+
+# Controller select entities - editable mode settings
+CONTROLLER_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
+    EconetSelectEntityDescription(
+        key="operating_mode",
+        param_id="162",
+        icon="mdi:sun-snowflake-variant",
+        options=OPERATING_MODE_OPTIONS,
+        value_map=OPERATING_MODE_MAPPING,
+        reverse_map=OPERATING_MODE_REVERSE,
     ),
 )
