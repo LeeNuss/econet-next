@@ -74,12 +74,19 @@ class EconetNextApi:
         except aiohttp.ClientError as err:
             raise EconetConnectionError(f"Connection error: {err}") from err
 
-        # The allParams field is a JSON string that needs to be parsed
-        all_params_str = data.get("allParams", "{}")
-        try:
-            params = json.loads(all_params_str)
-        except json.JSONDecodeError as err:
-            raise EconetApiError(f"Failed to parse allParams JSON: {err}") from err
+        # Handle both response formats:
+        # 1. Direct params object: {"0": {...}, "1": {...}, ...}
+        # 2. Wrapped in allParams: {"allParams": "{\"0\": {...}, ...}"}
+        if "allParams" in data:
+            # Wrapped format - allParams is a JSON string
+            all_params_str = data.get("allParams", "{}")
+            try:
+                params = json.loads(all_params_str)
+            except json.JSONDecodeError as err:
+                raise EconetApiError(f"Failed to parse allParams JSON: {err}") from err
+        else:
+            # Direct format - data is already the params dict
+            params = data
 
         _LOGGER.debug("Fetched %d parameters from device", len(params))
         return params

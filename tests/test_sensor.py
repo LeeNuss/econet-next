@@ -127,8 +127,8 @@ class TestEconetNextSensor:
         sensor = EconetNextSensor(coordinator, description)
         value = sensor.native_value
 
-        # From fixture, param 68 (TempWthr) = 12.1
-        assert value == 12.1
+        # From fixture, param 68 (TempWthr) = 10.0
+        assert value == 10.0
 
     def test_sensor_native_value_with_precision(self, coordinator: EconetNextCoordinator) -> None:
         """Test sensor applies precision rounding."""
@@ -141,8 +141,8 @@ class TestEconetNextSensor:
         sensor = EconetNextSensor(coordinator, description)
         value = sensor.native_value
 
-        # 12.1 rounded to 0 decimal places = 12
-        assert value == 12
+        # 10.0 rounded to 0 decimal places = 10
+        assert value == 10
 
     def test_sensor_string_value(self, coordinator: EconetNextCoordinator) -> None:
         """Test sensor handles string values."""

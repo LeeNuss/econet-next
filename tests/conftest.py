@@ -23,15 +23,16 @@ def fixture_path() -> Path:
 
 @pytest.fixture
 def all_params_response(fixture_path: Path) -> dict:
-    """Load the allParams.json fixture as API response format."""
+    """Load the allParams.json fixture as API response format (direct format)."""
     with open(fixture_path / "allParams.json") as f:
         return json.load(f)
 
 
 @pytest.fixture
 def all_params_parsed(all_params_response: dict) -> dict:
-    """Parse the allParams field from the response."""
-    return json.loads(all_params_response["allParams"])
+    """Return the parsed params dict (same as response in direct format)."""
+    # The API returns params directly, not wrapped in allParams
+    return all_params_response
 
 
 @pytest.fixture
