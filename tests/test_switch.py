@@ -132,7 +132,8 @@ class TestEconetNextSwitch:
         await switch.async_turn_on()
 
         coordinator.api.async_set_param.assert_called_once_with(485, 1)
-        coordinator.async_request_refresh.assert_called_once()
+        # Optimistic update should set the local value
+        assert coordinator.data["485"]["value"] == 1
 
     @pytest.mark.asyncio
     async def test_turn_off(self, coordinator: EconetNextCoordinator) -> None:
@@ -146,4 +147,5 @@ class TestEconetNextSwitch:
         await switch.async_turn_off()
 
         coordinator.api.async_set_param.assert_called_once_with(485, 0)
-        coordinator.async_request_refresh.assert_called_once()
+        # Optimistic update should set the local value
+        assert coordinator.data["485"]["value"] == 0

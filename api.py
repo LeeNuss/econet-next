@@ -91,7 +91,7 @@ class EconetNextApi:
         _LOGGER.debug("Fetched %d parameters from device", len(params))
         return params
 
-    async def async_set_param(self, param_id: int, value: Any) -> bool:
+    async def async_set_param(self, param_id: str | int, value: Any) -> bool:
         """Set a parameter value on the device.
 
         Args:

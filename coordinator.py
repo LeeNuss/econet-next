@@ -69,3 +69,29 @@ class EconetNextCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
     def get_device_name(self) -> str:
         """Get the device name."""
         return self.get_param_value(374) or "ecoMAX"
+
+    async def async_set_param(self, param_id: str | int, value: Any) -> bool:
+        """Set a parameter value on the device with optimistic local update.
+
+        Calls the API to set the value, and on success updates the local cache
+        immediately for instant UI feedback.
+
+        Args:
+            param_id: The parameter ID (string or int).
+            value: The new value to set.
+
+        Returns:
+            True if successful.
+
+        """
+        # Convert param_id to int for API call
+        result = await self.api.async_set_param(int(param_id), value)
+
+        # On success, update local cache for instant UI feedback
+        if result and self.data is not None:
+            param_key = str(param_id)
+            if param_key in self.data:
+                self.data[param_key]["value"] = value
+                self.async_set_updated_data(self.data)
+
+        return result

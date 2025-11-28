@@ -75,30 +75,18 @@ class EconetNextSwitch(EconetNextEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the switch on."""
-        param_id = int(self._description.param_id)
-
         _LOGGER.debug(
-            "Turning on %s (param %d)",
+            "Turning on %s (param %s)",
             self._description.key,
-            param_id,
+            self._description.param_id,
         )
-
-        await self.coordinator.api.async_set_param(param_id, 1)
-
-        # Request a refresh to get the updated value
-        await self.coordinator.async_request_refresh()
+        await self.coordinator.async_set_param(self._description.param_id, 1)
 
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the switch off."""
-        param_id = int(self._description.param_id)
-
         _LOGGER.debug(
-            "Turning off %s (param %d)",
+            "Turning off %s (param %s)",
             self._description.key,
-            param_id,
+            self._description.param_id,
         )
-
-        await self.coordinator.api.async_set_param(param_id, 0)
-
-        # Request a refresh to get the updated value
-        await self.coordinator.async_request_refresh()
+        await self.coordinator.async_set_param(self._description.param_id, 0)

@@ -209,7 +209,8 @@ class TestEconetNextSelect:
         await select.async_select_option("winter")
 
         coordinator.api.async_set_param.assert_called_once_with(162, 2)
-        coordinator.async_request_refresh.assert_called_once()
+        # Optimistic update should set the local value
+        assert coordinator.data["162"]["value"] == 2
 
     @pytest.mark.asyncio
     async def test_select_option_summer(self, coordinator: EconetNextCoordinator) -> None:
@@ -226,7 +227,8 @@ class TestEconetNextSelect:
         await select.async_select_option("summer")
 
         coordinator.api.async_set_param.assert_called_once_with(162, 1)
-        coordinator.async_request_refresh.assert_called_once()
+        # Optimistic update should set the local value
+        assert coordinator.data["162"]["value"] == 1
 
     @pytest.mark.asyncio
     async def test_select_option_auto(self, coordinator: EconetNextCoordinator) -> None:
@@ -243,7 +245,8 @@ class TestEconetNextSelect:
         await select.async_select_option("auto")
 
         coordinator.api.async_set_param.assert_called_once_with(162, 6)
-        coordinator.async_request_refresh.assert_called_once()
+        # Optimistic update should set the local value
+        assert coordinator.data["162"]["value"] == 6
 
     @pytest.mark.asyncio
     async def test_select_option_unknown(self, coordinator: EconetNextCoordinator) -> None:

@@ -56,9 +56,9 @@ class TestControllerNumbersDefinition:
 
         assert summer_on.param_id == "702"
         assert summer_on.native_unit_of_measurement == UnitOfTemperature.CELSIUS
+        # Limits are read from allParams, these are just fallbacks
         assert summer_on.native_min_value == 22
         assert summer_on.native_max_value == 30
-        assert summer_on.min_value_param_id == "703"  # Dynamic min from SummerOff
 
     def test_summer_mode_off_config(self) -> None:
         """Test summer mode off number has correct configuration."""
@@ -66,9 +66,9 @@ class TestControllerNumbersDefinition:
 
         assert summer_off.param_id == "703"
         assert summer_off.native_unit_of_measurement == UnitOfTemperature.CELSIUS
+        # Limits are read from allParams, these are just fallbacks
         assert summer_off.native_min_value == 0
         assert summer_off.native_max_value == 24
-        assert summer_off.max_value_param_id == "702"  # Dynamic max from SummerOn
 
 
 class TestEconetNextNumber:
@@ -104,63 +104,66 @@ class TestEconetNextNumber:
         # From fixture, param 702 (SummerOn) = 24
         assert value == 24.0
 
-    def test_number_static_min_max(self, coordinator: EconetNextCoordinator) -> None:
-        """Test number uses static min/max when no dynamic params specified."""
-        description = EconetNumberEntityDescription(
-            key="test_number",
-            param_id="702",
-            native_min_value=10,
-            native_max_value=50,
-        )
-
-        number = EconetNextNumber(coordinator, description)
-
-        assert number.native_min_value == 10
-        assert number.native_max_value == 50
-
-    def test_number_dynamic_min_value(self, coordinator: EconetNextCoordinator) -> None:
-        """Test number uses dynamic min from another param's value."""
-        description = EconetNumberEntityDescription(
-            key="summer_mode_on",
-            param_id="702",
-            native_min_value=22,  # Fallback
-            native_max_value=30,
-            min_value_param_id="703",  # Min from SummerOff value
-        )
-
-        number = EconetNextNumber(coordinator, description)
-
-        # From fixture, param 703 (SummerOff) = 22
-        assert number.native_min_value == 22.0
-
-    def test_number_dynamic_max_value(self, coordinator: EconetNextCoordinator) -> None:
-        """Test number uses dynamic max from another param's value."""
+    def test_number_static_min_max_from_allparams(self, coordinator: EconetNextCoordinator) -> None:
+        """Test number uses static minv/maxv from allParams."""
+        # Param 703 has static minv=0, maxv=24 in allParams (no dynamic pointers)
         description = EconetNumberEntityDescription(
             key="summer_mode_off",
             param_id="703",
-            native_min_value=0,
-            native_max_value=24,  # Fallback
-            max_value_param_id="702",  # Max from SummerOn value
+            native_min_value=999,  # Should be overridden by allParams
+            native_max_value=999,  # Should be overridden by allParams
         )
 
         number = EconetNextNumber(coordinator, description)
 
-        # From fixture, param 702 (SummerOn) = 24
+        # Should read from allParams, not description
+        assert number.native_min_value == 0.0  # From allParams minv
+        assert number.native_max_value == 24.0  # From allParams maxvDP → param 702 value
+
+    def test_number_dynamic_min_from_allparams(self, coordinator: EconetNextCoordinator) -> None:
+        """Test number uses dynamic min from minvDP in allParams."""
+        # Param 702 has minvDP=703 in allParams, which means min comes from param 703's value
+        description = EconetNumberEntityDescription(
+            key="summer_mode_on",
+            param_id="702",
+            native_min_value=999,  # Fallback (should not be used)
+            native_max_value=999,
+        )
+
+        number = EconetNextNumber(coordinator, description)
+
+        # From fixture: param 702 has minvDP=703, param 703 value=22
+        assert number.native_min_value == 22.0
+
+    def test_number_dynamic_max_from_allparams(self, coordinator: EconetNextCoordinator) -> None:
+        """Test number uses dynamic max from maxvDP in allParams."""
+        # Param 703 has maxvDP=702 in allParams, which means max comes from param 702's value
+        description = EconetNumberEntityDescription(
+            key="summer_mode_off",
+            param_id="703",
+            native_min_value=999,
+            native_max_value=999,  # Fallback (should not be used)
+        )
+
+        number = EconetNextNumber(coordinator, description)
+
+        # From fixture: param 703 has maxvDP=702, param 702 value=24
         assert number.native_max_value == 24.0
 
-    def test_number_dynamic_min_fallback(self, coordinator: EconetNextCoordinator) -> None:
-        """Test number falls back to static min when dynamic param not found."""
+    def test_number_fallback_when_no_allparams(self, coordinator: EconetNextCoordinator) -> None:
+        """Test number falls back to description limits when param not in allParams."""
         description = EconetNumberEntityDescription(
             key="test_number",
-            param_id="702",
+            param_id="99999",  # Non-existent param
             native_min_value=15,
             native_max_value=30,
-            min_value_param_id="99999",  # Non-existent param
         )
 
         number = EconetNextNumber(coordinator, description)
 
+        # Should use fallback values from description
         assert number.native_min_value == 15
+        assert number.native_max_value == 30
 
     @pytest.mark.asyncio
     async def test_set_native_value(self, coordinator: EconetNextCoordinator) -> None:
@@ -175,5 +178,7 @@ class TestEconetNextNumber:
         number = EconetNextNumber(coordinator, description)
         await number.async_set_native_value(25.0)
 
+        # Coordinator converts string param_id to int before calling API
         coordinator.api.async_set_param.assert_called_once_with(702, 25)
-        coordinator.async_request_refresh.assert_called_once()
+        # Optimistic update should set the local value
+        assert coordinator.data["702"]["value"] == 25

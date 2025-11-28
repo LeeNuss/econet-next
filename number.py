@@ -82,42 +82,101 @@ class EconetNextNumber(EconetNextEntity, NumberEntity):
     def native_min_value(self) -> float:
         """Return the minimum value.
 
-        If min_value_param_id is set, use that param's current value as min.
-        Otherwise use the static native_min_value.
+        Priority:
+        1. Dynamic min from minvDP parameter (if specified in allParams)
+        2. Static minv from allParams
+        3. Fallback from description
         """
-        if self._description.min_value_param_id:
-            dynamic_min = self.coordinator.get_param_value(self._description.min_value_param_id)
-            if dynamic_min is not None:
-                return float(dynamic_min)
+        param = self.coordinator.get_param(self._description.param_id)
+        if param:
+            # Check for dynamic min (minvDP points to another parameter)
+            minv_dp = param.get("minvDP")
+            if minv_dp is not None:
+                dynamic_min = self.coordinator.get_param_value(minv_dp)
+                if dynamic_min is not None:
+                    return float(dynamic_min)
 
+            # Check for static min in the parameter data
+            minv = param.get("minv")
+            if minv is not None:
+                return float(minv)
+
+        # Fallback to description value
         return self._description.native_min_value or 0
 
     @property
     def native_max_value(self) -> float:
         """Return the maximum value.
 
-        If max_value_param_id is set, use that param's current value as max.
-        Otherwise use the static native_max_value.
+        Priority:
+        1. Dynamic max from maxvDP parameter (if specified in allParams)
+        2. Static maxv from allParams
+        3. Fallback from description
         """
-        if self._description.max_value_param_id:
-            dynamic_max = self.coordinator.get_param_value(self._description.max_value_param_id)
-            if dynamic_max is not None:
-                return float(dynamic_max)
+        param = self.coordinator.get_param(self._description.param_id)
+        if param:
+            # Check for dynamic max (maxvDP points to another parameter)
+            maxv_dp = param.get("maxvDP")
+            if maxv_dp is not None:
+                dynamic_max = self.coordinator.get_param_value(maxv_dp)
+                if dynamic_max is not None:
+                    return float(dynamic_max)
 
+            # Check for static max in the parameter data
+            maxv = param.get("maxv")
+            if maxv is not None:
+                return float(maxv)
+
+        # Fallback to description value
         return self._description.native_max_value or 100
 
     async def async_set_native_value(self, value: float) -> None:
         """Set the value."""
-        param_id = int(self._description.param_id)
+        # Skip processing if the value is unchanged
+        if value == self.native_value:
+            return
+
+        # Validate against min/max bounds
+        min_value = self.native_min_value
+        max_value = self.native_max_value
+
+        if value > max_value:
+            _LOGGER.warning(
+                "Requested value '%s' for %s exceeds maximum allowed value '%s'",
+                value,
+                self._description.key,
+                max_value,
+            )
+            # Don't return - HA might allow slightly over max due to rounding
+
+        if value < min_value:
+            _LOGGER.warning(
+                "Requested value '%s' for %s is below minimum allowed value '%s'",
+                value,
+                self._description.key,
+                min_value,
+            )
+            return
+
+        # Convert to int if the value has no fractional part
+        # This ensures parameters that only accept integers receive integers,
+        # while fractional values (like 0.3 for heat curves) stay as floats
+        api_value = int(value) if value == int(value) else value
 
         _LOGGER.debug(
-            "Setting %s (param %d) to %s",
+            "Setting %s (param %s) to %s",
             self._description.key,
-            param_id,
-            value,
+            self._description.param_id,
+            api_value,
         )
 
-        await self.coordinator.api.async_set_param(param_id, int(value))
+        # Call coordinator to set value and handle optimistic update
+        result = await self.coordinator.async_set_param(self._description.param_id, api_value)
 
-        # Request a refresh to get the updated value
-        await self.coordinator.async_request_refresh()
+        if not result:
+            _LOGGER.warning(
+                "Failed to set %s (param %s) to %s",
+                self._description.key,
+                self._description.param_id,
+                api_value,
+            )

@@ -83,17 +83,11 @@ class EconetNextSelect(EconetNextEntity, SelectEntity):
             _LOGGER.error("Unknown option %s for %s", option, self._description.key)
             return
 
-        param_id = int(self._description.param_id)
-
         _LOGGER.debug(
-            "Setting %s (param %d) to %s (raw: %d)",
+            "Setting %s (param %s) to %s (raw: %d)",
             self._description.key,
-            param_id,
+            self._description.param_id,
             option,
             raw_value,
         )
-
-        await self.coordinator.api.async_set_param(param_id, raw_value)
-
-        # Request a refresh to get the updated value
-        await self.coordinator.async_request_refresh()
+        await self.coordinator.async_set_param(self._description.param_id, raw_value)

@@ -278,24 +278,22 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
 
 # Controller number entities - editable global settings
 CONTROLLER_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
-    # Summer mode settings
+    # Summer mode settings - limits are automatically read from allParams (minv/maxv/minvDP/maxvDP)
     EconetNumberEntityDescription(
         key="summer_mode_on",
         param_id="702",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         icon="mdi:weather-sunny",
-        native_min_value=22,  # Fallback if dynamic min unavailable
-        native_max_value=30,
-        min_value_param_id="703",  # Min is SummerOff value
+        native_min_value=22,  # Fallback only
+        native_max_value=30,  # Fallback only
     ),
     EconetNumberEntityDescription(
         key="summer_mode_off",
         param_id="703",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         icon="mdi:weather-sunny-off",
-        native_min_value=0,
-        native_max_value=24,  # Fallback if dynamic max unavailable
-        max_value_param_id="702",  # Max is SummerOn value
+        native_min_value=0,  # Fallback only
+        native_max_value=24,  # Fallback only
     ),
 )
 
