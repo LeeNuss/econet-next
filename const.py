@@ -13,7 +13,7 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["sensor"]
+PLATFORMS: list[str] = ["number", "sensor"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -68,6 +68,23 @@ class EconetSensorEntityDescription:
     precision: int | None = None
     options: list[str] | None = None  # For enum sensors
     value_map: dict[int, str] | None = None  # Map raw values to enum strings
+
+
+@dataclass(frozen=True)
+class EconetNumberEntityDescription:
+    """Describes an Econet number entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API
+    device_type: DeviceType = DeviceType.CONTROLLER
+    native_unit_of_measurement: str | None = None
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
+    native_min_value: float | None = None  # Static min value
+    native_max_value: float | None = None  # Static max value
+    native_step: float = 1.0
+    min_value_param_id: str | None = None  # Dynamic min from another param's value
+    max_value_param_id: str | None = None  # Dynamic max from another param's value
 
 
 # Controller sensors - read only
@@ -222,5 +239,29 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         param_id="1046",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:alert-circle-outline",
+    ),
+)
+
+
+# Controller number entities - editable global settings
+CONTROLLER_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
+    # Summer mode settings
+    EconetNumberEntityDescription(
+        key="summer_mode_on",
+        param_id="702",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:weather-sunny",
+        native_min_value=22,  # Fallback if dynamic min unavailable
+        native_max_value=30,
+        min_value_param_id="703",  # Min is SummerOff value
+    ),
+    EconetNumberEntityDescription(
+        key="summer_mode_off",
+        param_id="703",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:weather-sunny-off",
+        native_min_value=0,
+        native_max_value=24,  # Fallback if dynamic max unavailable
+        max_value_param_id="702",  # Max is SummerOn value
     ),
 )

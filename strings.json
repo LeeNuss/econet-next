@@ -108,6 +108,14 @@
       "alarm_bits_5": {
         "name": "Alarm bits 5"
       }
+    },
+    "number": {
+      "summer_mode_on": {
+        "name": "Summer mode on"
+      },
+      "summer_mode_off": {
+        "name": "Summer mode off"
+      }
     }
   }
 }
