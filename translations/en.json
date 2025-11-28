@@ -178,13 +178,11 @@
       "cooling_support": {
         "name": "Cooling support"
       },
-      "legionella_start": {
-        "name": "Legionella start"
-      }
-    },
-    "button": {
       "boost": {
         "name": "Boost"
+      },
+      "legionella_start": {
+        "name": "Legionella start"
       }
     }
   }

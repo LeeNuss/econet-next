@@ -13,7 +13,7 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["button", "number", "select", "sensor", "switch"]
+PLATFORMS: list[str] = ["number", "select", "sensor", "switch"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -141,17 +141,6 @@ class EconetSelectEntityDescription:
 @dataclass(frozen=True)
 class EconetSwitchEntityDescription:
     """Describes an Econet switch entity."""
-
-    key: str  # Translation key
-    param_id: str  # Parameter ID from API
-    device_type: DeviceType = DeviceType.CONTROLLER
-    entity_category: EntityCategory | None = None
-    icon: str | None = None
-
-
-@dataclass(frozen=True)
-class EconetButtonEntityDescription:
-    """Describes an Econet button entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -472,6 +461,13 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
 
 # DHW switch entities
 DHW_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+    # Boost - start/stop immediate DHW heating
+    EconetSwitchEntityDescription(
+        key="boost",
+        param_id="115",
+        device_type=DeviceType.DHW,
+        icon="mdi:rocket-launch",
+    ),
     # Legionella protection
     EconetSwitchEntityDescription(
         key="legionella_start",
@@ -503,17 +499,5 @@ DHW_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         options=LEGIONELLA_DAY_OPTIONS,
         value_map=LEGIONELLA_DAY_MAPPING,
         reverse_map=LEGIONELLA_DAY_REVERSE,
-    ),
-)
-
-
-# DHW button entities
-DHW_BUTTONS: tuple[EconetButtonEntityDescription, ...] = (
-    # Boost - trigger immediate DHW heating
-    EconetButtonEntityDescription(
-        key="boost",
-        param_id="115",
-        device_type=DeviceType.DHW,
-        icon="mdi:rocket-launch",
     ),
 )
