@@ -69,14 +69,23 @@ class EconetNextSensor(EconetNextEntity, SensorEntity):
             self._attr_entity_category = description.entity_category
         if description.icon:
             self._attr_icon = description.icon
+        if description.options:
+            self._attr_options = description.options
 
     @property
     def native_value(self):
         """Return the state of the sensor."""
         value = self._get_param_value()
 
+        if value is None:
+            return None
+
+        # Apply value mapping for enum sensors
+        if self._description.value_map is not None:
+            return self._description.value_map.get(int(value))
+
         # Apply precision if specified
-        if value is not None and self._description.precision is not None and isinstance(value, (int, float)):
+        if self._description.precision is not None and isinstance(value, (int, float)):
             return round(value, self._description.precision)
 
         return value

@@ -34,6 +34,14 @@ UPDATE_INTERVAL = 30
 # Device info
 MANUFACTURER = "Plum"
 
+# Enum mappings
+FLAP_VALVE_STATE_MAPPING: dict[int, str] = {
+    0: "ch",  # Central Heating
+    3: "dhw",  # Domestic Hot Water
+}
+
+FLAP_VALVE_STATE_OPTIONS: list[str] = ["ch", "dhw"]
+
 
 class DeviceType(StrEnum):
     """Device types in the integration."""
@@ -58,6 +66,8 @@ class EconetSensorEntityDescription:
     entity_category: EntityCategory | None = None
     icon: str | None = None
     precision: int | None = None
+    options: list[str] | None = None  # For enum sensors
+    value_map: dict[int, str] | None = None  # Map raw values to enum strings
 
 
 # Controller sensors - read only
@@ -112,7 +122,10 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
     EconetSensorEntityDescription(
         key="flap_valve_state",
         param_id="83",
+        device_class=SensorDeviceClass.ENUM,
         icon="mdi:valve",
+        options=FLAP_VALVE_STATE_OPTIONS,
+        value_map=FLAP_VALVE_STATE_MAPPING,
     ),
     # Network info (diagnostic)
     EconetSensorEntityDescription(

@@ -45,7 +45,11 @@
         "name": "Outdoor temperature"
       },
       "flap_valve_state": {
-        "name": "Flap valve state"
+        "name": "Flap valve state",
+        "state": {
+          "ch": "Central Heating",
+          "dhw": "Domestic Hot Water"
+        }
       },
       "wifi_ssid": {
         "name": "WiFi SSID"

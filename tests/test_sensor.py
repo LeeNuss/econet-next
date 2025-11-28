@@ -216,6 +216,28 @@ class TestEconetNextSensor:
         assert sensor.available is False
 
 
+class TestEnumSensor:
+    """Test enum sensor functionality."""
+
+    def test_flap_valve_enum_value(self, coordinator: EconetNextCoordinator) -> None:
+        """Test flap valve sensor returns mapped enum value."""
+        from econet_next.const import FLAP_VALVE_STATE_MAPPING, FLAP_VALVE_STATE_OPTIONS
+
+        description = EconetSensorEntityDescription(
+            key="flap_valve_state",
+            param_id="83",
+            device_class=SensorDeviceClass.ENUM,
+            options=FLAP_VALVE_STATE_OPTIONS,
+            value_map=FLAP_VALVE_STATE_MAPPING,
+        )
+
+        sensor = EconetNextSensor(coordinator, description)
+
+        # From fixture, param 83 = 0 which maps to "ch"
+        assert sensor.native_value == "ch"
+        assert sensor._attr_options == ["ch", "dhw"]
+
+
 class TestSensorEntityCategory:
     """Test sensor entity categories."""
 
