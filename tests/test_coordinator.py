@@ -62,13 +62,9 @@ class TestAsyncUpdateData:
         mock_api.async_fetch_all_params.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_data_api_error(
-        self, mock_hass: MagicMock, mock_api: MagicMock
-    ) -> None:
+    async def test_update_data_api_error(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test that API errors are wrapped in UpdateFailed."""
-        mock_api.async_fetch_all_params = AsyncMock(
-            side_effect=EconetApiError("Connection failed")
-        )
+        mock_api.async_fetch_all_params = AsyncMock(side_effect=EconetApiError("Connection failed"))
 
         coordinator = EconetNextCoordinator(mock_hass, mock_api)
 
@@ -112,9 +108,7 @@ class TestGetParam:
         param = coordinator.get_param("99999")
         assert param is None
 
-    def test_get_param_no_data(
-        self, mock_hass: MagicMock, mock_api: MagicMock
-    ) -> None:
+    def test_get_param_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting a parameter when data is None."""
         coordinator = EconetNextCoordinator(mock_hass, mock_api)
         coordinator.data = None
@@ -157,9 +151,7 @@ class TestGetParamValue:
         value = coordinator.get_param_value("99999")
         assert value is None
 
-    def test_get_param_value_no_data(
-        self, mock_hass: MagicMock, mock_api: MagicMock
-    ) -> None:
+    def test_get_param_value_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting a parameter value when data is None."""
         coordinator = EconetNextCoordinator(mock_hass, mock_api)
         coordinator.data = None
@@ -184,9 +176,7 @@ class TestDeviceInfo:
         uid = coordinator.get_device_uid()
         assert uid == "2L7SDPN6KQ38CIH2401K01U"
 
-    def test_get_device_uid_no_data(
-        self, mock_hass: MagicMock, mock_api: MagicMock
-    ) -> None:
+    def test_get_device_uid_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting device UID when data is unavailable."""
         coordinator = EconetNextCoordinator(mock_hass, mock_api)
         coordinator.data = None
@@ -207,9 +197,7 @@ class TestDeviceInfo:
         name = coordinator.get_device_name()
         assert name == "ecoMAX360i"
 
-    def test_get_device_name_no_data(
-        self, mock_hass: MagicMock, mock_api: MagicMock
-    ) -> None:
+    def test_get_device_name_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting device name when data is unavailable."""
         coordinator = EconetNextCoordinator(mock_hass, mock_api)
         coordinator.data = None

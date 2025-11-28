@@ -44,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EconetNextConfigEntry) -
 
     # Store coordinator
     entry.runtime_data = coordinator
-    hass.data[DOMAIN][entry.entry_id] = coordinator
+    hass.data[DOMAIN][entry.entry_id] = {"coordinator": coordinator}
 
     # Set up platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

@@ -102,9 +102,7 @@ class EconetNextApi:
         }
 
         try:
-            async with self._session.get(
-                url, auth=self._auth, params=params, timeout=10
-            ) as response:
+            async with self._session.get(url, auth=self._auth, params=params, timeout=10) as response:
                 if response.status == 401:
                     raise EconetAuthError("Invalid authentication credentials")
                 if response.status != 200:

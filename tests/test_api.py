@@ -82,9 +82,7 @@ class TestFetchAllParams:
         assert result["374"]["name"] == "Nazwa"
 
     @pytest.mark.asyncio
-    async def test_fetch_all_params_auth_error(
-        self, mock_session: MagicMock
-    ) -> None:
+    async def test_fetch_all_params_auth_error(self, mock_session: MagicMock) -> None:
         """Test authentication error handling."""
         mock_response = AsyncMock()
         mock_response.status = 401
@@ -105,9 +103,7 @@ class TestFetchAllParams:
             await api.async_fetch_all_params()
 
     @pytest.mark.asyncio
-    async def test_fetch_all_params_api_error(
-        self, mock_session: MagicMock
-    ) -> None:
+    async def test_fetch_all_params_api_error(self, mock_session: MagicMock) -> None:
         """Test API error handling for non-200 status."""
         mock_response = AsyncMock()
         mock_response.status = 500
@@ -128,13 +124,9 @@ class TestFetchAllParams:
             await api.async_fetch_all_params()
 
     @pytest.mark.asyncio
-    async def test_fetch_all_params_connection_error(
-        self, mock_session: MagicMock
-    ) -> None:
+    async def test_fetch_all_params_connection_error(self, mock_session: MagicMock) -> None:
         """Test connection error handling."""
-        mock_session.get = MagicMock(
-            side_effect=aiohttp.ClientError("Connection failed")
-        )
+        mock_session.get = MagicMock(side_effect=aiohttp.ClientError("Connection failed"))
 
         api = EconetNextApi(
             host="192.168.1.100",
@@ -148,15 +140,11 @@ class TestFetchAllParams:
             await api.async_fetch_all_params()
 
     @pytest.mark.asyncio
-    async def test_fetch_all_params_invalid_json(
-        self, mock_session: MagicMock
-    ) -> None:
+    async def test_fetch_all_params_invalid_json(self, mock_session: MagicMock) -> None:
         """Test handling of invalid JSON in allParams field."""
         mock_response = AsyncMock()
         mock_response.status = 200
-        mock_response.json = AsyncMock(
-            return_value={"allParams": "not valid json {{{"}
-        )
+        mock_response.json = AsyncMock(return_value={"allParams": "not valid json {{{"})
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
 

@@ -20,5 +20,45 @@
     "abort": {
       "already_configured": "Device is already configured"
     }
+  },
+  "entity": {
+    "sensor": {
+      "software_version": {
+        "name": "Software version"
+      },
+      "hardware_version": {
+        "name": "Hardware version"
+      },
+      "uid": {
+        "name": "UID"
+      },
+      "device_name": {
+        "name": "Device name"
+      },
+      "compilation_date": {
+        "name": "Compilation date"
+      },
+      "reset_counter": {
+        "name": "Reset counter"
+      },
+      "outdoor_temperature": {
+        "name": "Outdoor temperature"
+      },
+      "flap_valve_state": {
+        "name": "Flap valve state"
+      },
+      "wifi_ssid": {
+        "name": "WiFi SSID"
+      },
+      "wifi_signal_strength": {
+        "name": "WiFi signal strength"
+      },
+      "wifi_ip_address": {
+        "name": "WiFi IP address"
+      },
+      "lan_ip_address": {
+        "name": "LAN IP address"
+      }
+    }
   }
 }

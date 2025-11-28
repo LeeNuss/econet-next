@@ -1,9 +1,19 @@
 """Constants for the ecoNET Next integration."""
 
+from dataclasses import dataclass
+from enum import StrEnum
+
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+from homeassistant.const import (
+    PERCENTAGE,
+    EntityCategory,
+    UnitOfTemperature,
+)
+
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = []
+PLATFORMS: list[str] = ["sensor"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -23,3 +33,113 @@ UPDATE_INTERVAL = 30
 
 # Device info
 MANUFACTURER = "Plum"
+
+
+class DeviceType(StrEnum):
+    """Device types in the integration."""
+
+    CONTROLLER = "controller"
+    DHW = "dhw"
+    BUFFER = "buffer"
+    HEATPUMP = "heatpump"
+    CIRCUIT = "circuit"
+
+
+@dataclass(frozen=True)
+class EconetSensorEntityDescription:
+    """Describes an Econet sensor entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API
+    device_type: DeviceType = DeviceType.CONTROLLER
+    device_class: SensorDeviceClass | None = None
+    state_class: SensorStateClass | None = None
+    native_unit_of_measurement: str | None = None
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
+    precision: int | None = None
+
+
+# Controller sensors - read only
+CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
+    # System information (diagnostic)
+    EconetSensorEntityDescription(
+        key="software_version",
+        param_id="0",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:information-outline",
+    ),
+    EconetSensorEntityDescription(
+        key="hardware_version",
+        param_id="1",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:information-outline",
+    ),
+    EconetSensorEntityDescription(
+        key="uid",
+        param_id="10",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:identifier",
+    ),
+    EconetSensorEntityDescription(
+        key="device_name",
+        param_id="374",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:label-outline",
+    ),
+    EconetSensorEntityDescription(
+        key="compilation_date",
+        param_id="13",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:calendar",
+    ),
+    EconetSensorEntityDescription(
+        key="reset_counter",
+        param_id="14",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:counter",
+    ),
+    # System state sensors
+    EconetSensorEntityDescription(
+        key="outdoor_temperature",
+        param_id="68",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        precision=1,
+    ),
+    EconetSensorEntityDescription(
+        key="flap_valve_state",
+        param_id="83",
+        icon="mdi:valve",
+    ),
+    # Network info (diagnostic)
+    EconetSensorEntityDescription(
+        key="wifi_ssid",
+        param_id="377",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:wifi",
+    ),
+    EconetSensorEntityDescription(
+        key="wifi_signal_strength",
+        param_id="380",
+        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:wifi-strength-3",
+    ),
+    EconetSensorEntityDescription(
+        key="wifi_ip_address",
+        param_id="860",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:ip-network",
+    ),
+    EconetSensorEntityDescription(
+        key="lan_ip_address",
+        param_id="863",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:ip-network",
+    ),
+)
