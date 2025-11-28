@@ -124,7 +124,6 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
     EconetSensorEntityDescription(
         key="wifi_signal_strength",
         param_id="380",
-        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=PERCENTAGE,
         entity_category=EntityCategory.DIAGNOSTIC,

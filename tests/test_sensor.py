@@ -63,7 +63,7 @@ class TestControllerSensorsDefinition:
         wifi_signal = next(s for s in CONTROLLER_SENSORS if s.key == "wifi_signal_strength")
 
         assert wifi_signal.param_id == "380"
-        assert wifi_signal.device_class == SensorDeviceClass.SIGNAL_STRENGTH
+        assert wifi_signal.device_class is None  # % is not valid for SIGNAL_STRENGTH
         assert wifi_signal.native_unit_of_measurement == PERCENTAGE
         assert wifi_signal.entity_category == EntityCategory.DIAGNOSTIC
 
