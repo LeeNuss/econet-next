@@ -61,7 +61,7 @@ async def async_setup_entry(
     # Add circuit switch entities if circuit is active
     for circuit_num, circuit in CIRCUITS.items():
         active = coordinator.get_param(circuit.active_param)
-        if active and active.get("value") > 0:
+        if active and active.get("value", 0) > 0:
             for description in CIRCUIT_SWITCHES:
                 param_id = circuit.settings_param
                 if param_id and coordinator.get_param(param_id) is not None:
@@ -111,6 +111,15 @@ class EconetNextSwitch(EconetNextEntity, SwitchEntity):
             self._attr_entity_category = description.entity_category
         if description.icon:
             self._attr_icon = description.icon
+
+        # Override unique_id for bitmap switches to include the key
+        # This ensures each bit position gets a unique ID
+        if description.bit_position is not None:
+            uid = coordinator.get_device_uid()
+            if device_id:
+                self._attr_unique_id = f"{uid}_{device_id}_{description.param_id}_{description.key}"
+            else:
+                self._attr_unique_id = f"{uid}_{description.param_id}_{description.key}"
 
     @property
     def is_on(self) -> bool | None:
