@@ -66,6 +66,16 @@ SILENT_MODE_LEVEL_OPTIONS: list[str] = list(SILENT_MODE_LEVEL_MAPPING.values())
 
 SILENT_MODE_LEVEL_REVERSE: dict[str, int] = {v: k for k, v in SILENT_MODE_LEVEL_MAPPING.items()}
 
+# Silent mode schedule - API parameter 1386
+SILENT_MODE_SCHEDULE_MAPPING: dict[int, str] = {
+    0: "off",
+    2: "schedule",
+}
+
+SILENT_MODE_SCHEDULE_OPTIONS: list[str] = list(SILENT_MODE_SCHEDULE_MAPPING.values())
+
+SILENT_MODE_SCHEDULE_REVERSE: dict[str, int] = {v: k for k, v in SILENT_MODE_SCHEDULE_MAPPING.items()}
+
 # DHW mode - API parameter 119
 DHW_MODE_MAPPING: dict[int, str] = {
     0: "off",
@@ -354,6 +364,14 @@ CONTROLLER_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         options=SILENT_MODE_LEVEL_OPTIONS,
         value_map=SILENT_MODE_LEVEL_MAPPING,
         reverse_map=SILENT_MODE_LEVEL_REVERSE,
+    ),
+    EconetSelectEntityDescription(
+        key="silent_mode_schedule",
+        param_id="1386",
+        icon="mdi:calendar-clock",
+        options=SILENT_MODE_SCHEDULE_OPTIONS,
+        value_map=SILENT_MODE_SCHEDULE_MAPPING,
+        reverse_map=SILENT_MODE_SCHEDULE_REVERSE,
     ),
 )
 

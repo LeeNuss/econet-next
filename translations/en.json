@@ -301,6 +301,13 @@
           "level_2": "Level 2",
           "level_3": "Level 3"
         }
+      },
+      "silent_mode_schedule": {
+        "name": "Silent mode schedule",
+        "state": {
+          "off": "Off",
+          "schedule": "Schedule"
+        }
       }
     },
     "switch": {
