@@ -127,6 +127,48 @@
             },
             "room_temp_setpoint": {
                 "name": "Room temperature setpoint"
+            },
+            "hdw_schedule_sunday_am_decoded": {
+                "name": "DHW schedule Sunday AM (decoded)"
+            },
+            "hdw_schedule_sunday_pm_decoded": {
+                "name": "DHW schedule Sunday PM (decoded)"
+            },
+            "hdw_schedule_monday_am_decoded": {
+                "name": "DHW schedule Monday AM (decoded)"
+            },
+            "hdw_schedule_monday_pm_decoded": {
+                "name": "DHW schedule Monday PM (decoded)"
+            },
+            "hdw_schedule_tuesday_am_decoded": {
+                "name": "DHW schedule Tuesday AM (decoded)"
+            },
+            "hdw_schedule_tuesday_pm_decoded": {
+                "name": "DHW schedule Tuesday PM (decoded)"
+            },
+            "hdw_schedule_wednesday_am_decoded": {
+                "name": "DHW schedule Wednesday AM (decoded)"
+            },
+            "hdw_schedule_wednesday_pm_decoded": {
+                "name": "DHW schedule Wednesday PM (decoded)"
+            },
+            "hdw_schedule_thursday_am_decoded": {
+                "name": "DHW schedule Thursday AM (decoded)"
+            },
+            "hdw_schedule_thursday_pm_decoded": {
+                "name": "DHW schedule Thursday PM (decoded)"
+            },
+            "hdw_schedule_friday_am_decoded": {
+                "name": "DHW schedule Friday AM (decoded)"
+            },
+            "hdw_schedule_friday_pm_decoded": {
+                "name": "DHW schedule Friday PM (decoded)"
+            },
+            "hdw_schedule_saturday_am_decoded": {
+                "name": "DHW schedule Saturday AM (decoded)"
+            },
+            "hdw_schedule_saturday_pm_decoded": {
+                "name": "DHW schedule Saturday PM (decoded)"
             }
         },
         "number": {
@@ -192,6 +234,48 @@
             },
             "cooling_base_temp": {
                 "name": "Cooling base temperature"
+            },
+            "hdw_schedule_sunday_am": {
+                "name": "DHW schedule Sunday AM"
+            },
+            "hdw_schedule_sunday_pm": {
+                "name": "DHW schedule Sunday PM"
+            },
+            "hdw_schedule_monday_am": {
+                "name": "DHW schedule Monday AM"
+            },
+            "hdw_schedule_monday_pm": {
+                "name": "DHW schedule Monday PM"
+            },
+            "hdw_schedule_tuesday_am": {
+                "name": "DHW schedule Tuesday AM"
+            },
+            "hdw_schedule_tuesday_pm": {
+                "name": "DHW schedule Tuesday PM"
+            },
+            "hdw_schedule_wednesday_am": {
+                "name": "DHW schedule Wednesday AM"
+            },
+            "hdw_schedule_wednesday_pm": {
+                "name": "DHW schedule Wednesday PM"
+            },
+            "hdw_schedule_thursday_am": {
+                "name": "DHW schedule Thursday AM"
+            },
+            "hdw_schedule_thursday_pm": {
+                "name": "DHW schedule Thursday PM"
+            },
+            "hdw_schedule_friday_am": {
+                "name": "DHW schedule Friday AM"
+            },
+            "hdw_schedule_friday_pm": {
+                "name": "DHW schedule Friday PM"
+            },
+            "hdw_schedule_saturday_am": {
+                "name": "DHW schedule Saturday AM"
+            },
+            "hdw_schedule_saturday_pm": {
+                "name": "DHW schedule Saturday PM"
             }
         },
         "select": {

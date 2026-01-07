@@ -12,6 +12,7 @@ from .const import (
     CIRCUIT_NUMBERS,
     CONTROLLER_NUMBERS,
     DHW_NUMBERS,
+    DHW_SCHEDULE_NUMBERS,
     DOMAIN,
     EconetNumberEntityDescription,
 )
@@ -54,6 +55,17 @@ async def async_setup_entry(
                 else:
                     _LOGGER.debug(
                         "Skipping DHW number %s - parameter %s not found",
+                        description.key,
+                        description.param_id,
+                    )
+
+            # Add DHW schedule number entities
+            for description in DHW_SCHEDULE_NUMBERS:
+                if coordinator.get_param(description.param_id) is not None:
+                    entities.append(EconetNextNumber(coordinator, description))
+                else:
+                    _LOGGER.debug(
+                        "Skipping DHW schedule %s - parameter %s not found",
                         description.key,
                         description.param_id,
                     )

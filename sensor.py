@@ -11,6 +11,7 @@ from .climate import CIRCUITS
 from .const import (
     CIRCUIT_SENSORS,
     CONTROLLER_SENSORS,
+    DHW_SCHEDULE_DIAGNOSTIC_SENSORS,
     DHW_SENSORS,
     DOMAIN,
     EconetSensorEntityDescription,
@@ -19,6 +20,49 @@ from .coordinator import EconetNextCoordinator
 from .entity import EconetNextEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def decode_schedule_bitfield(value: int, is_am: bool = True) -> str:
+    """
+    Decode a schedule bitfield into human-readable time ranges.
+
+    Args:
+        value: uint32 bitfield where each bit = 30-minute slot
+        is_am: True for AM schedule (00:00-11:30), False for PM (12:00-23:30)
+
+    Returns:
+        String like "06:00-09:30, 17:00-21:00" or "No active periods"
+    """
+    if value == 0:
+        return "No active periods"
+
+    ranges = []
+    start_bit = None
+    start_offset = 0 if is_am else 24  # PM schedules start at 12:00 (24 half-hours)
+
+    for bit in range(24):  # 24 half-hour slots
+        is_set = (value >> bit) & 1
+
+        if is_set and start_bit is None:
+            start_bit = bit
+        elif not is_set and start_bit is not None:
+            # End of range
+            start_hour = (start_offset + start_bit) // 2
+            start_min = ((start_offset + start_bit) % 2) * 30
+            end_hour = (start_offset + bit) // 2
+            end_min = ((start_offset + bit) % 2) * 30
+            ranges.append(f"{start_hour:02d}:{start_min:02d}-{end_hour:02d}:{end_min:02d}")
+            start_bit = None
+
+    # Handle range extending to end
+    if start_bit is not None:
+        start_hour = (start_offset + start_bit) // 2
+        start_min = ((start_offset + start_bit) % 2) * 30
+        end_hour = (start_offset + 24) // 2
+        end_min = 0
+        ranges.append(f"{start_hour:02d}:{start_min:02d}-{end_hour:02d}:{end_min:02d}")
+
+    return ", ".join(ranges)
 
 
 async def async_setup_entry(
@@ -55,6 +99,19 @@ async def async_setup_entry(
                 else:
                     _LOGGER.debug(
                         "Skipping DHW sensor %s - parameter %s not found",
+                        description.key,
+                        description.param_id,
+                    )
+
+            # Add DHW schedule diagnostic sensors
+            for description in DHW_SCHEDULE_DIAGNOSTIC_SENSORS:
+                if coordinator.get_param(description.param_id) is not None:
+                    # Determine if AM or PM based on the key
+                    is_am = description.key.endswith("_am_decoded")
+                    entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description, is_am))
+                else:
+                    _LOGGER.debug(
+                        "Skipping DHW schedule diagnostic sensor %s - parameter %s not found",
                         description.key,
                         description.param_id,
                     )
@@ -167,3 +224,31 @@ class EconetNextSensor(EconetNextEntity, SensorEntity):
             return value != 999.0
 
         return True
+
+
+class EconetNextScheduleDiagnosticSensor(EconetNextSensor):
+    """Sensor that decodes schedule bitfields into human-readable format."""
+
+    def __init__(
+        self,
+        coordinator: EconetNextCoordinator,
+        description: EconetSensorEntityDescription,
+        is_am: bool,
+        device_id: str | None = None,
+    ) -> None:
+        """Initialize the diagnostic sensor."""
+        super().__init__(coordinator, description, device_id)
+        self._is_am = is_am
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the decoded schedule as a string."""
+        param_value = self._get_param_value()
+        if param_value is None:
+            return None
+
+        try:
+            bitfield_value = int(param_value)
+            return decode_schedule_bitfield(bitfield_value, self._is_am)
+        except (ValueError, TypeError):
+            return None
