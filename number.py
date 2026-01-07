@@ -196,7 +196,7 @@ class EconetNextNumber(EconetNextEntity, NumberEntity):
 
         Priority:
         1. Dynamic min from minvDP parameter (if specified in allParams)
-        2. Static minv from allParams
+        2. Static minv from allParams (if valid range with maxv)
         3. Fallback from description
         """
         param = self.coordinator.get_param(self._description.param_id)
@@ -208,9 +208,11 @@ class EconetNextNumber(EconetNextEntity, NumberEntity):
                 if dynamic_min is not None:
                     return float(dynamic_min)
 
-            # Check for static min in the parameter data
+            # Check for static min/max in the parameter data
             minv = param.get("minv")
-            if minv is not None:
+            maxv = param.get("maxv")
+            # Only use API values if they form a valid range (min < max)
+            if minv is not None and maxv is not None and float(minv) < float(maxv):
                 return float(minv)
 
         # Fallback to description value
@@ -222,7 +224,7 @@ class EconetNextNumber(EconetNextEntity, NumberEntity):
 
         Priority:
         1. Dynamic max from maxvDP parameter (if specified in allParams)
-        2. Static maxv from allParams
+        2. Static maxv from allParams (if valid range with minv)
         3. Fallback from description
         """
         param = self.coordinator.get_param(self._description.param_id)
@@ -234,9 +236,11 @@ class EconetNextNumber(EconetNextEntity, NumberEntity):
                 if dynamic_max is not None:
                     return float(dynamic_max)
 
-            # Check for static max in the parameter data
+            # Check for static min/max in the parameter data
+            minv = param.get("minv")
             maxv = param.get("maxv")
-            if maxv is not None:
+            # Only use API values if they form a valid range (min < max)
+            if minv is not None and maxv is not None and float(minv) < float(maxv):
                 return float(maxv)
 
         # Fallback to description value

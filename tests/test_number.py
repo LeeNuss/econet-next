@@ -460,3 +460,24 @@ class TestCircuitNumbers:
 
         coordinator.api.async_set_param.assert_called_once_with(787, 20)
         assert coordinator.data["787"]["value"] == 20
+
+    def test_schedule_number_fallback_invalid_api_range(self, coordinator: EconetNextCoordinator) -> None:
+        """Test schedule number uses description values when API has invalid range (minv=maxv=0)."""
+        # Param 120 (HDWSundayAM) has minv=0, maxv=0 in fixture (invalid range)
+        description = EconetNumberEntityDescription(
+            key="hdw_schedule_sunday_am",
+            param_id="120",
+            device_type="dhw",
+            icon="mdi:calendar-clock",
+            native_min_value=0,
+            native_max_value=4294967295,
+            native_step=1,
+        )
+
+        number = EconetNextNumber(coordinator, description, device_id="dhw")
+
+        # Should fall back to description values since API has invalid range
+        assert number.native_min_value == 0
+        assert number.native_max_value == 4294967295
+        # Value from fixture
+        assert number.native_value == 1792
