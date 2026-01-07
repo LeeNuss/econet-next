@@ -149,3 +149,192 @@ class TestEconetNextSwitch:
         coordinator.api.async_set_param.assert_called_once_with(485, 0)
         # Optimistic update should set the local value
         assert coordinator.data["485"]["value"] == 0
+
+
+class TestBitfieldSwitches:
+    """Test bitmap-based switches (bit position switches)."""
+
+    def test_bitfield_switch_is_on_bit_set(self, coordinator: EconetNextCoordinator) -> None:
+        """Test bitfield switch returns True when bit is set."""
+        # Set bit 10 in the value (1 << 10 = 1024)
+        coordinator.data["231"] = {"id": 231, "value": 1024}
+
+        description = EconetSwitchEntityDescription(
+            key="pump_blockage",
+            param_id="231",
+            bit_position=10,
+            invert_logic=False,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is True
+
+    def test_bitfield_switch_is_on_bit_clear(self, coordinator: EconetNextCoordinator) -> None:
+        """Test bitfield switch returns False when bit is clear."""
+        # Bit 10 is not set
+        coordinator.data["231"] = {"id": 231, "value": 0}
+
+        description = EconetSwitchEntityDescription(
+            key="pump_blockage",
+            param_id="231",
+            bit_position=10,
+            invert_logic=False,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is False
+
+    def test_bitfield_switch_inverted_logic_on(self, coordinator: EconetNextCoordinator) -> None:
+        """Test bitfield switch with inverted logic returns True when bit is clear."""
+        # Bit 20 is not set (0 = ON for inverted logic)
+        coordinator.data["231"] = {"id": 231, "value": 0}
+
+        description = EconetSwitchEntityDescription(
+            key="heating_enable",
+            param_id="231",
+            bit_position=20,
+            invert_logic=True,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is True
+
+    def test_bitfield_switch_inverted_logic_off(self, coordinator: EconetNextCoordinator) -> None:
+        """Test bitfield switch with inverted logic returns False when bit is set."""
+        # Set bit 20 (1 << 20 = 1048576, so 1 = OFF for inverted logic)
+        coordinator.data["231"] = {"id": 231, "value": 1048576}
+
+        description = EconetSwitchEntityDescription(
+            key="heating_enable",
+            param_id="231",
+            bit_position=20,
+            invert_logic=True,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is False
+
+    def test_bitfield_switch_multiple_bits_set(self, coordinator: EconetNextCoordinator) -> None:
+        """Test bitfield switch with multiple bits set."""
+        # Set bits 10, 13, and 17 (1024 + 8192 + 131072 = 140288)
+        coordinator.data["231"] = {"id": 231, "value": 140288}
+
+        # Test bit 10 is on
+        description = EconetSwitchEntityDescription(
+            key="pump_blockage",
+            param_id="231",
+            bit_position=10,
+            invert_logic=False,
+        )
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is True
+
+        # Test bit 13 is on
+        description = EconetSwitchEntityDescription(
+            key="pump_only_mode",
+            param_id="231",
+            bit_position=13,
+            invert_logic=False,
+        )
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is True
+
+        # Test bit 17 is on
+        description = EconetSwitchEntityDescription(
+            key="cooling_enable",
+            param_id="231",
+            bit_position=17,
+            invert_logic=False,
+        )
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is True
+
+        # Test bit 20 is off
+        description = EconetSwitchEntityDescription(
+            key="heating_enable",
+            param_id="231",
+            bit_position=20,
+            invert_logic=False,
+        )
+        switch = EconetNextSwitch(coordinator, description)
+        assert switch.is_on is False
+
+    @pytest.mark.asyncio
+    async def test_bitfield_turn_on_sets_bit(self, coordinator: EconetNextCoordinator) -> None:
+        """Test turning on a bitfield switch sets the correct bit."""
+        # Start with bits 13 and 17 set (8192 + 131072 = 139264)
+        coordinator.data["231"] = {"id": 231, "value": 139264}
+
+        description = EconetSwitchEntityDescription(
+            key="pump_blockage",
+            param_id="231",
+            bit_position=10,
+            invert_logic=False,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        await switch.async_turn_on()
+
+        # Should set bit 10: 139264 | 1024 = 140288
+        coordinator.api.async_set_param.assert_called_once_with(231, 140288)
+        assert coordinator.data["231"]["value"] == 140288
+
+    @pytest.mark.asyncio
+    async def test_bitfield_turn_off_clears_bit(self, coordinator: EconetNextCoordinator) -> None:
+        """Test turning off a bitfield switch clears the correct bit."""
+        # Start with bits 10, 13, and 17 set (140288)
+        coordinator.data["231"] = {"id": 231, "value": 140288}
+
+        description = EconetSwitchEntityDescription(
+            key="pump_blockage",
+            param_id="231",
+            bit_position=10,
+            invert_logic=False,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        await switch.async_turn_off()
+
+        # Should clear bit 10: 140288 & ~1024 = 139264
+        coordinator.api.async_set_param.assert_called_once_with(231, 139264)
+        assert coordinator.data["231"]["value"] == 139264
+
+    @pytest.mark.asyncio
+    async def test_bitfield_inverted_turn_on_clears_bit(self, coordinator: EconetNextCoordinator) -> None:
+        """Test turning on inverted bitfield switch clears the bit."""
+        # Start with bit 20 set (1048576)
+        coordinator.data["231"] = {"id": 231, "value": 1048576}
+
+        description = EconetSwitchEntityDescription(
+            key="heating_enable",
+            param_id="231",
+            bit_position=20,
+            invert_logic=True,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        await switch.async_turn_on()
+
+        # Should clear bit 20 (inverted logic): 1048576 & ~1048576 = 0
+        coordinator.api.async_set_param.assert_called_once_with(231, 0)
+        assert coordinator.data["231"]["value"] == 0
+
+    @pytest.mark.asyncio
+    async def test_bitfield_inverted_turn_off_sets_bit(self, coordinator: EconetNextCoordinator) -> None:
+        """Test turning off inverted bitfield switch sets the bit."""
+        # Start with no bits set
+        coordinator.data["231"] = {"id": 231, "value": 0}
+
+        description = EconetSwitchEntityDescription(
+            key="heating_enable",
+            param_id="231",
+            bit_position=20,
+            invert_logic=True,
+        )
+
+        switch = EconetNextSwitch(coordinator, description)
+        await switch.async_turn_off()
+
+        # Should set bit 20 (inverted logic): 0 | 1048576 = 1048576
+        coordinator.api.async_set_param.assert_called_once_with(231, 1048576)
+        assert coordinator.data["231"]["value"] == 1048576

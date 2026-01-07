@@ -150,8 +150,6 @@ def _get_circuit_param_id(circuit, number_key: str, coordinator: EconetNextCoord
 class EconetNextNumber(EconetNextEntity, NumberEntity):
     """Representation of an ecoNET Next number entity."""
 
-    _attr_mode = NumberMode.SLIDER
-
     def __init__(
         self,
         coordinator: EconetNextCoordinator,
@@ -177,6 +175,12 @@ class EconetNextNumber(EconetNextEntity, NumberEntity):
             self._attr_icon = description.icon
 
         self._attr_native_step = description.native_step
+
+        # Use BOX (input field) for schedule entities, SLIDER for others
+        if "schedule" in description.key:
+            self._attr_mode = NumberMode.BOX
+        else:
+            self._attr_mode = NumberMode.SLIDER
 
     @property
     def native_value(self) -> float | None:

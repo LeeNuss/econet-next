@@ -105,15 +105,18 @@ async def async_setup_entry(
 
             # Add DHW schedule diagnostic sensors
             for description in DHW_SCHEDULE_DIAGNOSTIC_SENSORS:
-                if coordinator.get_param(description.param_id) is not None:
-                    # Determine if AM or PM based on the key
-                    is_am = description.key.endswith("_am_decoded")
-                    entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description, is_am))
+                # Check that both AM and PM params exist
+                if (
+                    coordinator.get_param(description.param_id_am) is not None
+                    and coordinator.get_param(description.param_id_pm) is not None
+                ):
+                    entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description))
                 else:
                     _LOGGER.debug(
-                        "Skipping DHW schedule diagnostic sensor %s - parameter %s not found",
+                        "Skipping DHW schedule diagnostic sensor %s - parameters %s/%s not found",
                         description.key,
-                        description.param_id,
+                        description.param_id_am,
+                        description.param_id_pm,
                     )
 
     # Add circuit sensors if circuit is active
@@ -227,28 +230,49 @@ class EconetNextSensor(EconetNextEntity, SensorEntity):
 
 
 class EconetNextScheduleDiagnosticSensor(EconetNextSensor):
-    """Sensor that decodes schedule bitfields into human-readable format."""
+    """Sensor that decodes schedule bitfields into human-readable format.
+
+    This sensor combines both AM and PM schedule periods into a single daily view.
+    """
 
     def __init__(
         self,
         coordinator: EconetNextCoordinator,
         description: EconetSensorEntityDescription,
-        is_am: bool,
         device_id: str | None = None,
     ) -> None:
         """Initialize the diagnostic sensor."""
         super().__init__(coordinator, description, device_id)
-        self._is_am = is_am
 
     @property
     def native_value(self) -> str | None:
-        """Return the decoded schedule as a string."""
-        param_value = self._get_param_value()
-        if param_value is None:
+        """Return the decoded schedule as a string combining AM and PM periods."""
+        # Get AM param value
+        am_param = self.coordinator.get_param(self._description.param_id_am)
+        pm_param = self.coordinator.get_param(self._description.param_id_pm)
+
+        if am_param is None or pm_param is None:
+            return None
+
+        am_value = am_param.get("value")
+        pm_value = pm_param.get("value")
+
+        if am_value is None or pm_value is None:
             return None
 
         try:
-            bitfield_value = int(param_value)
-            return decode_schedule_bitfield(bitfield_value, self._is_am)
+            # Decode both AM and PM periods
+            am_decoded = decode_schedule_bitfield(int(am_value), is_am=True)
+            pm_decoded = decode_schedule_bitfield(int(pm_value), is_am=False)
+
+            # Combine results
+            if am_decoded == "No active periods" and pm_decoded == "No active periods":
+                return "No active periods"
+            elif am_decoded == "No active periods":
+                return pm_decoded
+            elif pm_decoded == "No active periods":
+                return am_decoded
+            else:
+                return f"{am_decoded}, {pm_decoded}"
         except (ValueError, TypeError):
             return None

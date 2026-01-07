@@ -376,3 +376,300 @@ class TestCircuitSensors:
 
         # Unique ID should include circuit device_id
         assert "circuit_2" in sensor.unique_id
+
+
+class TestScheduleBitfieldDecoder:
+    """Test the decode_schedule_bitfield function."""
+
+    def test_decode_empty_schedule(self) -> None:
+        """Test decoding a schedule with no active periods."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        result = decode_schedule_bitfield(0, is_am=True)
+        assert result == "No active periods"
+
+        result = decode_schedule_bitfield(0, is_am=False)
+        assert result == "No active periods"
+
+    def test_decode_am_single_slot(self) -> None:
+        """Test decoding a single 30-minute slot in AM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bit 0 = 00:00-00:30
+        result = decode_schedule_bitfield(1, is_am=True)
+        assert result == "00:00-00:30"
+
+        # Bit 1 = 00:30-01:00
+        result = decode_schedule_bitfield(2, is_am=True)
+        assert result == "00:30-01:00"
+
+        # Bit 8 = 04:00-04:30
+        result = decode_schedule_bitfield(256, is_am=True)
+        assert result == "04:00-04:30"
+
+    def test_decode_pm_single_slot(self) -> None:
+        """Test decoding a single 30-minute slot in PM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bit 0 in PM = 12:00-12:30
+        result = decode_schedule_bitfield(1, is_am=False)
+        assert result == "12:00-12:30"
+
+        # Bit 1 in PM = 12:30-13:00
+        result = decode_schedule_bitfield(2, is_am=False)
+        assert result == "12:30-13:00"
+
+        # Bit 8 in PM = 16:00-16:30
+        result = decode_schedule_bitfield(256, is_am=False)
+        assert result == "16:00-16:30"
+
+    def test_decode_am_continuous_range(self) -> None:
+        """Test decoding a continuous time range in AM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bits 8-10 set (256 + 512 + 1024 = 1792) = 04:00-05:30
+        result = decode_schedule_bitfield(1792, is_am=True)
+        assert result == "04:00-05:30"
+
+        # Bits 0-3 set (1 + 2 + 4 + 8 = 15) = 00:00-02:00
+        result = decode_schedule_bitfield(15, is_am=True)
+        assert result == "00:00-02:00"
+
+    def test_decode_pm_continuous_range(self) -> None:
+        """Test decoding a continuous time range in PM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bits 8-10 set (1792) in PM = 16:00-17:30
+        result = decode_schedule_bitfield(1792, is_am=False)
+        assert result == "16:00-17:30"
+
+        # Bits 10-15 set (64512) in PM = 17:00-20:00
+        result = decode_schedule_bitfield(64512, is_am=False)
+        assert result == "17:00-20:00"
+
+    def test_decode_multiple_ranges(self) -> None:
+        """Test decoding multiple separate time ranges."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bits 0-1 and 4-5 set (3 + 48 = 51) = 00:00-01:00, 02:00-03:00
+        result = decode_schedule_bitfield(51, is_am=True)
+        assert result == "00:00-01:00, 02:00-03:00"
+
+        # Bits 2-3 and 8-9 set (12 + 768 = 780) = 01:00-02:00, 04:00-05:00
+        result = decode_schedule_bitfield(780, is_am=True)
+        assert result == "01:00-02:00, 04:00-05:00"
+
+    def test_decode_all_slots_am(self) -> None:
+        """Test decoding all 24 slots in AM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # All 24 bits set (2^24 - 1 = 16777215) = 00:00-12:00
+        result = decode_schedule_bitfield(16777215, is_am=True)
+        assert result == "00:00-12:00"
+
+    def test_decode_all_slots_pm(self) -> None:
+        """Test decoding all 24 slots in PM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # All 24 bits set (16777215) in PM = 12:00-24:00
+        result = decode_schedule_bitfield(16777215, is_am=False)
+        assert result == "12:00-24:00"
+
+    def test_decode_last_slot_am(self) -> None:
+        """Test decoding the last slot in AM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bit 23 (last slot) = 11:30-12:00
+        result = decode_schedule_bitfield(8388608, is_am=True)
+        assert result == "11:30-12:00"
+
+    def test_decode_last_slot_pm(self) -> None:
+        """Test decoding the last slot in PM period."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Bit 23 in PM = 23:30-24:00
+        result = decode_schedule_bitfield(8388608, is_am=False)
+        assert result == "23:30-24:00"
+
+    def test_decode_complex_pattern(self) -> None:
+        """Test decoding a complex realistic pattern."""
+        from econet_next.sensor import decode_schedule_bitfield
+
+        # Morning: 06:00-09:00 (bits 12-17 = 258048)
+        # Evening: 17:00-22:00 (bits 34-43 would be in PM, but we only have 24 bits)
+        # For AM: bits 12-17 = 06:00-09:00
+        result = decode_schedule_bitfield(258048, is_am=True)
+        assert result == "06:00-09:00"
+
+        # For PM: bits 10-19 = 17:00-22:00
+        result = decode_schedule_bitfield(1047552, is_am=False)
+        assert result == "17:00-22:00"
+
+
+class TestScheduleDiagnosticSensor:
+    """Test the EconetNextScheduleDiagnosticSensor class (combines AM+PM)."""
+
+    def test_diagnostic_sensor_combined_schedule(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor combining AM and PM schedules."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # Set DHW Sunday AM schedule: bits 8-10 set (1792) = 04:00-05:30
+        coordinator.data["120"] = {"id": 120, "value": 1792}
+        # Set DHW Sunday PM schedule: bits 10-15 (64512) = 17:00-20:00
+        coordinator.data["121"] = {"id": 121, "value": 64512}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value == "04:00-05:30, 17:00-20:00"
+
+    def test_diagnostic_sensor_only_am_active(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor with only AM schedule active."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # AM schedule active
+        coordinator.data["120"] = {"id": 120, "value": 1792}
+        # PM schedule empty
+        coordinator.data["121"] = {"id": 121, "value": 0}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value == "04:00-05:30"
+
+    def test_diagnostic_sensor_only_pm_active(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor with only PM schedule active."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # AM schedule empty
+        coordinator.data["120"] = {"id": 120, "value": 0}
+        # PM schedule active
+        coordinator.data["121"] = {"id": 121, "value": 64512}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value == "17:00-20:00"
+
+    def test_diagnostic_sensor_no_active_periods(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor with no active periods in either AM or PM."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # Both schedules empty
+        coordinator.data["120"] = {"id": 120, "value": 0}
+        coordinator.data["121"] = {"id": 121, "value": 0}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value == "No active periods"
+
+    def test_diagnostic_sensor_none_value(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor returns None when param value is None."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # Set AM value to None
+        coordinator.data["120"] = {"id": 120, "value": None}
+        coordinator.data["121"] = {"id": 121, "value": 0}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value is None
+
+    def test_diagnostic_sensor_missing_am_param(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor returns None when AM param is missing."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # Remove AM param from data
+        if "120" in coordinator.data:
+            del coordinator.data["120"]
+        coordinator.data["121"] = {"id": 121, "value": 0}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value is None
+
+    def test_diagnostic_sensor_missing_pm_param(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor returns None when PM param is missing."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # Remove PM param from data
+        coordinator.data["120"] = {"id": 120, "value": 0}
+        if "121" in coordinator.data:
+            del coordinator.data["121"]
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value is None
+
+    def test_diagnostic_sensor_all_day(self, coordinator: EconetNextCoordinator) -> None:
+        """Test diagnostic sensor with all slots active (full day)."""
+        from econet_next.sensor import EconetNextScheduleDiagnosticSensor
+
+        # All 24 bits set for both AM and PM (16777215)
+        coordinator.data["120"] = {"id": 120, "value": 16777215}
+        coordinator.data["121"] = {"id": 121, "value": 16777215}
+
+        description = EconetSensorEntityDescription(
+            key="hdw_schedule_sunday_decoded",
+            param_id="120",
+            param_id_am="120",
+            param_id_pm="121",
+            device_type=DeviceType.CONTROLLER,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+
+        sensor = EconetNextScheduleDiagnosticSensor(coordinator, description)
+        assert sensor.native_value == "00:00-12:00, 12:00-24:00"

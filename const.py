@@ -105,6 +105,8 @@ class EconetSensorEntityDescription:
     precision: int | None = None
     options: list[str] | None = None  # For enum sensors
     value_map: dict[int, str] | None = None  # Map raw values to enum strings
+    param_id_am: str | None = None  # For schedule diagnostic sensors - AM param
+    param_id_pm: str | None = None  # For schedule diagnostic sensors - PM param
 
 
 @dataclass(frozen=True)
@@ -462,264 +464,45 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
 
 
 # DHW schedule entities - bitfield for 30-minute time slots
-DHW_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
-    # Sunday
+# Generated programmatically to reduce repetition
+_DHW_SCHEDULE_DAYS = [
+    ("sunday", 120, 121),
+    ("monday", 122, 123),
+    ("tuesday", 124, 125),
+    ("wednesday", 126, 127),
+    ("thursday", 128, 129),
+    ("friday", 130, 131),
+    ("saturday", 132, 133),
+]
+
+DHW_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
     EconetNumberEntityDescription(
-        key="hdw_schedule_sunday_am",
-        param_id="120",
+        key=f"hdw_schedule_{day}_{period}",
+        param_id=str(param_id),
         device_type=DeviceType.DHW,
         icon="mdi:calendar-clock",
         entity_category=EntityCategory.CONFIG,
         native_min_value=0,
         native_max_value=4294967295,
         native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_sunday_pm",
-        param_id="121",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    # Monday
-    EconetNumberEntityDescription(
-        key="hdw_schedule_monday_am",
-        param_id="122",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_monday_pm",
-        param_id="123",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    # Tuesday
-    EconetNumberEntityDescription(
-        key="hdw_schedule_tuesday_am",
-        param_id="124",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_tuesday_pm",
-        param_id="125",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    # Wednesday
-    EconetNumberEntityDescription(
-        key="hdw_schedule_wednesday_am",
-        param_id="126",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_wednesday_pm",
-        param_id="127",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    # Thursday
-    EconetNumberEntityDescription(
-        key="hdw_schedule_thursday_am",
-        param_id="128",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_thursday_pm",
-        param_id="129",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    # Friday
-    EconetNumberEntityDescription(
-        key="hdw_schedule_friday_am",
-        param_id="130",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_friday_pm",
-        param_id="131",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    # Saturday
-    EconetNumberEntityDescription(
-        key="hdw_schedule_saturday_am",
-        param_id="132",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
-    EconetNumberEntityDescription(
-        key="hdw_schedule_saturday_pm",
-        param_id="133",
-        device_type=DeviceType.DHW,
-        icon="mdi:calendar-clock",
-        entity_category=EntityCategory.CONFIG,
-        native_min_value=0,
-        native_max_value=4294967295,
-        native_step=1,
-    ),
+    )
+    for day, am_id, pm_id in _DHW_SCHEDULE_DAYS
+    for period, param_id in [("am", am_id), ("pm", pm_id)]
 )
 
 
-# DHW schedule diagnostic sensors - decoded time ranges
-DHW_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
-    # Sunday
+# DHW schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
+DHW_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
     EconetSensorEntityDescription(
-        key="hdw_schedule_sunday_am_decoded",
-        param_id="120",
+        key=f"hdw_schedule_{day}_decoded",
+        param_id=str(am_id),  # Use AM param as primary param_id
+        param_id_am=str(am_id),
+        param_id_pm=str(pm_id),
         device_type=DeviceType.DHW,
         icon="mdi:clock-outline",
         entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_sunday_pm_decoded",
-        param_id="121",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    # Monday
-    EconetSensorEntityDescription(
-        key="hdw_schedule_monday_am_decoded",
-        param_id="122",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_monday_pm_decoded",
-        param_id="123",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    # Tuesday
-    EconetSensorEntityDescription(
-        key="hdw_schedule_tuesday_am_decoded",
-        param_id="124",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_tuesday_pm_decoded",
-        param_id="125",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    # Wednesday
-    EconetSensorEntityDescription(
-        key="hdw_schedule_wednesday_am_decoded",
-        param_id="126",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_wednesday_pm_decoded",
-        param_id="127",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    # Thursday
-    EconetSensorEntityDescription(
-        key="hdw_schedule_thursday_am_decoded",
-        param_id="128",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_thursday_pm_decoded",
-        param_id="129",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    # Friday
-    EconetSensorEntityDescription(
-        key="hdw_schedule_friday_am_decoded",
-        param_id="130",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_friday_pm_decoded",
-        param_id="131",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    # Saturday
-    EconetSensorEntityDescription(
-        key="hdw_schedule_saturday_am_decoded",
-        param_id="132",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
-    EconetSensorEntityDescription(
-        key="hdw_schedule_saturday_pm_decoded",
-        param_id="133",
-        device_type=DeviceType.DHW,
-        icon="mdi:clock-outline",
-        entity_category=EntityCategory.DIAGNOSTIC,
-    ),
+    )
+    for day, am_id, pm_id in _DHW_SCHEDULE_DAYS
 )
 
 
