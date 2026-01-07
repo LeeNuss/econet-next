@@ -130,6 +130,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
     def test_entity_initialization(self, circuit_2_entity: CircuitClimate) -> None:
@@ -187,6 +188,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.current_temperature is None
@@ -206,6 +208,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.hvac_mode == HVACMode.OFF
@@ -225,6 +228,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.hvac_mode == HVACMode.HEAT
@@ -244,6 +248,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.hvac_mode == HVACMode.HEAT
@@ -267,6 +272,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.preset_mode == PRESET_ECO
@@ -285,14 +291,16 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.preset_mode == PRESET_COMFORT
 
     def test_preset_mode_auto(self, circuit_2_entity: CircuitClimate) -> None:
-        """Test preset mode returns None in auto mode."""
-        # From fixture, Circuit2WorkState = 3 (auto)
-        assert circuit_2_entity.preset_mode is None
+        """Test preset mode detects active preset in auto mode."""
+        # From fixture: Circuit2WorkState = 3 (auto), room_temp_setpoint (92) = 21.0, comfort (288) = 21.0
+        # Setpoint matches comfort, so should detect COMFORT preset
+        assert circuit_2_entity.preset_mode == PRESET_COMFORT
 
     def test_target_temperature_comfort(self, coordinator: EconetNextCoordinator) -> None:
         """Test target temperature in comfort mode."""
@@ -308,6 +316,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         # From fixture, Circuit2ComfortTemp = 21.0
@@ -327,15 +336,17 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         # From fixture, Circuit2EcoTemp = 17.5
         assert entity.target_temperature == 17.5
 
     def test_target_temperature_auto(self, circuit_2_entity: CircuitClimate) -> None:
-        """Test target temperature returns None in auto mode."""
-        # From fixture, Circuit2WorkState = 3 (auto)
-        assert circuit_2_entity.target_temperature is None
+        """Test target temperature shows active setpoint in auto mode."""
+        # From fixture: Circuit2WorkState = 3 (auto), room_temp_setpoint (92) = 21.0, comfort (288) = 21.0
+        # Setpoint matches comfort, so should show comfort temperature
+        assert circuit_2_entity.target_temperature == 21.0
 
     def test_hvac_action_off(self, coordinator: EconetNextCoordinator) -> None:
         """Test HVAC action when circuit is off."""
@@ -352,6 +363,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         assert entity.hvac_action == HVACAction.OFF
@@ -372,6 +384,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         # 18.0 < 21.0 - 0.5 = true, so HEATING
@@ -393,6 +406,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         # 21.0 < 21.0 - 0.5 = false, so IDLE
@@ -441,6 +455,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         # Access preset_mode to set _last_preset
@@ -471,6 +486,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         # Access preset_mode to set _last_preset
@@ -518,6 +534,7 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         await entity.async_set_temperature(**{ATTR_TEMPERATURE: 22.5})
@@ -539,23 +556,152 @@ class TestCircuitClimate:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         await entity.async_set_temperature(**{ATTR_TEMPERATURE: 18.5})
 
         coordinator.async_set_param.assert_called_once_with("289", 18.5)
 
+    def test_preset_mode_auto_detects_eco(self, coordinator: EconetNextCoordinator) -> None:
+        """Test preset mode detection in AUTO mode when setpoint matches ECO temp."""
+        coordinator.data["286"]["value"] = CircuitWorkState.AUTO
+        coordinator.data["289"]["value"] = 19.0  # Eco temp
+        coordinator.data["288"]["value"] = 22.0  # Comfort temp
+        coordinator.data["92"]["value"] = 19.0  # Room temp setpoint matches eco
+
+        circuit = CIRCUITS[2]
+        entity = CircuitClimate(
+            coordinator,
+            circuit_num=2,
+            name_param=circuit.name_param,
+            work_state_param=circuit.work_state_param,
+            settings_param=circuit.settings_param,
+            thermostat_param=circuit.thermostat_param,
+            comfort_param=circuit.comfort_param,
+            eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
+        )
+
+        assert entity.preset_mode == PRESET_ECO
+
+    def test_preset_mode_auto_detects_comfort(self, coordinator: EconetNextCoordinator) -> None:
+        """Test preset mode detection in AUTO mode when setpoint matches COMFORT temp."""
+        coordinator.data["286"]["value"] = CircuitWorkState.AUTO
+        coordinator.data["289"]["value"] = 19.0  # Eco temp
+        coordinator.data["288"]["value"] = 22.0  # Comfort temp
+        coordinator.data["92"]["value"] = 22.0  # Room temp setpoint matches comfort
+
+        circuit = CIRCUITS[2]
+        entity = CircuitClimate(
+            coordinator,
+            circuit_num=2,
+            name_param=circuit.name_param,
+            work_state_param=circuit.work_state_param,
+            settings_param=circuit.settings_param,
+            thermostat_param=circuit.thermostat_param,
+            comfort_param=circuit.comfort_param,
+            eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
+        )
+
+        assert entity.preset_mode == PRESET_COMFORT
+
+    def test_target_temperature_auto_shows_eco(self, coordinator: EconetNextCoordinator) -> None:
+        """Test target temperature in AUTO mode shows ECO temp when setpoint matches."""
+        coordinator.data["286"]["value"] = CircuitWorkState.AUTO
+        coordinator.data["289"]["value"] = 19.0  # Eco temp
+        coordinator.data["288"]["value"] = 22.0  # Comfort temp
+        coordinator.data["92"]["value"] = 19.0  # Room temp setpoint matches eco
+
+        circuit = CIRCUITS[2]
+        entity = CircuitClimate(
+            coordinator,
+            circuit_num=2,
+            name_param=circuit.name_param,
+            work_state_param=circuit.work_state_param,
+            settings_param=circuit.settings_param,
+            thermostat_param=circuit.thermostat_param,
+            comfort_param=circuit.comfort_param,
+            eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
+        )
+
+        assert entity.target_temperature == 19.0
+
+    def test_target_temperature_auto_shows_comfort(self, coordinator: EconetNextCoordinator) -> None:
+        """Test target temperature in AUTO mode shows COMFORT temp when setpoint matches."""
+        coordinator.data["286"]["value"] = CircuitWorkState.AUTO
+        coordinator.data["289"]["value"] = 19.0  # Eco temp
+        coordinator.data["288"]["value"] = 22.0  # Comfort temp
+        coordinator.data["92"]["value"] = 22.0  # Room temp setpoint matches comfort
+
+        circuit = CIRCUITS[2]
+        entity = CircuitClimate(
+            coordinator,
+            circuit_num=2,
+            name_param=circuit.name_param,
+            work_state_param=circuit.work_state_param,
+            settings_param=circuit.settings_param,
+            thermostat_param=circuit.thermostat_param,
+            comfort_param=circuit.comfort_param,
+            eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
+        )
+
+        assert entity.target_temperature == 22.0
+
     @pytest.mark.asyncio
-    async def test_set_temperature_auto_mode_ignored(
-        self, circuit_2_entity: CircuitClimate, coordinator: EconetNextCoordinator
-    ) -> None:
-        """Test setting temperature in auto mode is ignored."""
-        # From fixture, Circuit2WorkState = 3 (auto)
+    async def test_set_temperature_auto_mode_eco(self, coordinator: EconetNextCoordinator) -> None:
+        """Test setting temperature in AUTO mode when currently in ECO."""
+        coordinator.data["286"]["value"] = CircuitWorkState.AUTO
+        coordinator.data["289"]["value"] = 19.0  # Eco temp
+        coordinator.data["288"]["value"] = 22.0  # Comfort temp
+        coordinator.data["92"]["value"] = 19.0  # Room temp setpoint matches eco
 
-        await circuit_2_entity.async_set_temperature(**{ATTR_TEMPERATURE: 22.0})
+        circuit = CIRCUITS[2]
+        entity = CircuitClimate(
+            coordinator,
+            circuit_num=2,
+            name_param=circuit.name_param,
+            work_state_param=circuit.work_state_param,
+            settings_param=circuit.settings_param,
+            thermostat_param=circuit.thermostat_param,
+            comfort_param=circuit.comfort_param,
+            eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
+        )
 
-        # Should not call async_set_param
-        coordinator.async_set_param.assert_not_called()
+        await entity.async_set_temperature(**{ATTR_TEMPERATURE: 20.0})
+
+        # Should set ECO temp (param 289)
+        coordinator.async_set_param.assert_called_once_with("289", 20.0)
+
+    @pytest.mark.asyncio
+    async def test_set_temperature_auto_mode_comfort(self, coordinator: EconetNextCoordinator) -> None:
+        """Test setting temperature in AUTO mode when currently in COMFORT."""
+        coordinator.data["286"]["value"] = CircuitWorkState.AUTO
+        coordinator.data["289"]["value"] = 19.0  # Eco temp
+        coordinator.data["288"]["value"] = 22.0  # Comfort temp
+        coordinator.data["92"]["value"] = 22.0  # Room temp setpoint matches comfort
+
+        circuit = CIRCUITS[2]
+        entity = CircuitClimate(
+            coordinator,
+            circuit_num=2,
+            name_param=circuit.name_param,
+            work_state_param=circuit.work_state_param,
+            settings_param=circuit.settings_param,
+            thermostat_param=circuit.thermostat_param,
+            comfort_param=circuit.comfort_param,
+            eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
+        )
+
+        await entity.async_set_temperature(**{ATTR_TEMPERATURE: 23.0})
+
+        # Should set COMFORT temp (param 288)
+        coordinator.async_set_param.assert_called_once_with("288", 23.0)
 
     def test_unique_id(self, circuit_2_entity: CircuitClimate) -> None:
         """Test climate entity unique_id generation."""
@@ -595,6 +741,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -621,6 +768,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -647,6 +795,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -673,6 +822,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -699,6 +849,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -725,6 +876,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -752,6 +904,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
@@ -779,6 +932,7 @@ class TestOperatingModeHVACModes:
             thermostat_param=circuit.thermostat_param,
             comfort_param=circuit.comfort_param,
             eco_param=circuit.eco_param,
+            room_temp_setpoint_param=circuit.room_temp_setpoint_param,
         )
 
         modes = entity.hvac_modes
