@@ -145,9 +145,10 @@ class TestCircuitClimate:
         assert circuit_2_entity._attr_name == "UFH"  # Stripped
 
     def test_supported_features(self, circuit_2_entity: CircuitClimate) -> None:
-        """Test entity has correct supported features."""
-        expected = ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
-        assert circuit_2_entity._attr_supported_features == expected
+        """Test entity has correct supported features based on HVAC mode."""
+        # Fixture has HEAT_COOL mode, so should support TARGET_TEMPERATURE_RANGE
+        expected = ClimateEntityFeature.TARGET_TEMPERATURE_RANGE | ClimateEntityFeature.PRESET_MODE
+        assert circuit_2_entity.supported_features == expected
 
     def test_hvac_modes(self, circuit_2_entity: CircuitClimate) -> None:
         """Test entity has correct HVAC modes based on settings."""
@@ -486,8 +487,10 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_temperature_comfort(self, coordinator: EconetNextCoordinator) -> None:
-        """Test setting temperature in comfort mode."""
+        """Test setting temperature in comfort mode with HEAT only."""
         coordinator.data["286"]["value"] = CircuitWorkState.COMFORT
+        # Set to HEAT mode only (heating enabled, cooling disabled)
+        coordinator.data["281"]["value"] = 0  # bit 20=0 (heat on), bit 17=0 (cool off)
 
         circuit = CIRCUITS[2]
         entity = CircuitClimate(
@@ -508,8 +511,10 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_temperature_eco(self, coordinator: EconetNextCoordinator) -> None:
-        """Test setting temperature in eco mode."""
+        """Test setting temperature in eco mode with HEAT only."""
         coordinator.data["286"]["value"] = CircuitWorkState.ECO
+        # Set to HEAT mode only (heating enabled, cooling disabled)
+        coordinator.data["281"]["value"] = 0  # bit 20=0 (heat on), bit 17=0 (cool off)
 
         circuit = CIRCUITS[2]
         entity = CircuitClimate(
@@ -633,6 +638,8 @@ class TestCircuitClimate:
         coordinator.data["289"]["value"] = 19.0  # Eco temp
         coordinator.data["288"]["value"] = 22.0  # Comfort temp
         coordinator.data["92"]["value"] = 19.0  # Room temp setpoint matches eco
+        # Set to HEAT mode only (heating enabled, cooling disabled)
+        coordinator.data["281"]["value"] = 0  # bit 20=0 (heat on), bit 17=0 (cool off)
 
         circuit = CIRCUITS[2]
         entity = CircuitClimate(
@@ -659,6 +666,8 @@ class TestCircuitClimate:
         coordinator.data["289"]["value"] = 19.0  # Eco temp
         coordinator.data["288"]["value"] = 22.0  # Comfort temp
         coordinator.data["92"]["value"] = 22.0  # Room temp setpoint matches comfort
+        # Set to HEAT mode only (heating enabled, cooling disabled)
+        coordinator.data["281"]["value"] = 0  # bit 20=0 (heat on), bit 17=0 (cool off)
 
         circuit = CIRCUITS[2]
         entity = CircuitClimate(
