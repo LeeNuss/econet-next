@@ -193,7 +193,25 @@ async def async_setup_entry(
                         options=description.options,
                         value_map=description.value_map,
                     )
-                    entities.append(EconetNextSensor(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
+
+                    # Use special sensor class for active_preset_mode
+                    if description.key == "active_preset_mode":
+                        # Also check that eco and comfort params exist
+                        if (
+                            coordinator.get_param(circuit.eco_param) is not None
+                            and coordinator.get_param(circuit.comfort_param) is not None
+                        ):
+                            entities.append(
+                                EconetNextActiveScheduleModeSensor(
+                                    coordinator,
+                                    circuit_desc,
+                                    circuit.eco_param,
+                                    circuit.comfort_param,
+                                    device_id=f"circuit_{circuit_num}",
+                                )
+                            )
+                    else:
+                        entities.append(EconetNextSensor(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
                 else:
                     _LOGGER.debug(
                         "Skipping Circuit %s sensor %s - parameter %s not found",
@@ -245,6 +263,7 @@ def _get_circuit_param_id(circuit, sensor_key: str) -> str | None:
         "thermostat_temp": circuit.thermostat_param,
         "calc_temp": circuit.calc_temp_param,
         "room_temp_setpoint": circuit.room_temp_setpoint_param,
+        "active_preset_mode": circuit.room_temp_setpoint_param,  # Uses setpoint as primary param
     }
     return mapping.get(sensor_key)
 
@@ -372,5 +391,76 @@ class EconetNextScheduleDiagnosticSensor(EconetNextSensor):
                 return am_decoded
             else:
                 return f"{am_decoded}, {pm_decoded}"
+        except (ValueError, TypeError):
+            return None
+
+
+class EconetNextActiveScheduleModeSensor(EconetNextSensor):
+    """Sensor that shows the active schedule mode (eco/comfort) for a circuit.
+
+    Computes the active mode by comparing the room temperature setpoint
+    to the eco and comfort temperature settings.
+    """
+
+    def __init__(
+        self,
+        coordinator: EconetNextCoordinator,
+        description: EconetSensorEntityDescription,
+        eco_param_id: str,
+        comfort_param_id: str,
+        device_id: str | None = None,
+    ) -> None:
+        """Initialize the active schedule mode sensor."""
+        super().__init__(coordinator, description, device_id)
+        self._eco_param_id = eco_param_id
+        self._comfort_param_id = comfort_param_id
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the active schedule mode (eco or comfort).
+
+        Compares the current room_temp_setpoint to eco_temp and comfort_temp
+        to determine which mode the circuit is currently following.
+        """
+        # Get current room temperature setpoint (the target temp the system is using)
+        setpoint_param = self.coordinator.get_param(self._description.param_id)
+        if not setpoint_param:
+            return None
+
+        setpoint = setpoint_param.get("value")
+        if setpoint is None or setpoint == 999.0:
+            return None
+
+        # Get eco and comfort temperatures
+        eco_param = self.coordinator.get_param(self._eco_param_id)
+        comfort_param = self.coordinator.get_param(self._comfort_param_id)
+
+        if not eco_param or not comfort_param:
+            return None
+
+        eco_temp = eco_param.get("value")
+        comfort_temp = comfort_param.get("value")
+
+        if eco_temp is None or comfort_temp is None:
+            return None
+
+        if eco_temp == 999.0 or comfort_temp == 999.0:
+            return None
+
+        try:
+            setpoint_float = float(setpoint)
+            eco_float = float(eco_temp)
+            comfort_float = float(comfort_temp)
+
+            # Compare setpoint to eco and comfort temps
+            # If setpoint is closer to comfort, we're in comfort (day) mode
+            # If setpoint is closer to eco, we're in eco (night) mode
+            eco_diff = abs(setpoint_float - eco_float)
+            comfort_diff = abs(setpoint_float - comfort_float)
+
+            if comfort_diff < eco_diff:
+                return "comfort"
+            else:
+                return "eco"
         except (ValueError, TypeError):
             return None

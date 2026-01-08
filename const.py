@@ -72,6 +72,9 @@ ACTIVE_MODE_MAPPING: dict[int, str] = {
 
 ACTIVE_MODE_OPTIONS: list[str] = list(ACTIVE_MODE_MAPPING.values())
 
+# Active preset mode - for circuits in schedule mode (read-only, computed)
+ACTIVE_PRESET_MODE_OPTIONS: list[str] = ["eco", "comfort"]
+
 # Silent mode level - API parameter 1385
 SILENT_MODE_LEVEL_MAPPING: dict[int, str] = {
     0: "level_1",
@@ -976,6 +979,16 @@ CIRCUIT_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         icon="mdi:target",
         precision=1,
+    ),
+    # Active preset mode (eco/comfort) - computed by comparing setpoint to eco/comfort temps
+    EconetSensorEntityDescription(
+        key="active_preset_mode",
+        param_id="",  # Set dynamically - uses room_temp_setpoint as primary param
+        device_type=DeviceType.CIRCUIT,
+        device_class=SensorDeviceClass.ENUM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:calendar-clock",
+        options=ACTIVE_PRESET_MODE_OPTIONS,
     ),
 )
 

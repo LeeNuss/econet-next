@@ -69,6 +69,7 @@
             "thermostat_temp": {"name": "Thermostat temperature"},
             "calc_temp": {"name": "Calculated temperature"},
             "room_temp_setpoint": {"name": "Room temperature setpoint"},
+            "active_preset_mode": {"name": "Active preset mode", "state": {"eco": "Eco", "comfort": "Comfort"}},
             "hdw_schedule_sunday_decoded": {"name": "DHW schedule Sunday (decoded)"},
             "hdw_schedule_monday_decoded": {"name": "DHW schedule Monday (decoded)"},
             "hdw_schedule_tuesday_decoded": {"name": "DHW schedule Tuesday (decoded)"},
