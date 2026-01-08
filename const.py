@@ -13,7 +13,7 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["climate", "number", "select", "sensor", "switch"]
+PLATFORMS: list[str] = ["button", "climate", "number", "select", "sensor", "switch"]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -74,6 +74,17 @@ SILENT_MODE_SCHEDULE_MAPPING: dict[int, str] = {
 SILENT_MODE_SCHEDULE_OPTIONS: list[str] = list(SILENT_MODE_SCHEDULE_MAPPING.values())
 
 SILENT_MODE_SCHEDULE_REVERSE: dict[str, int] = {v: k for k, v in SILENT_MODE_SCHEDULE_MAPPING.items()}
+
+# Heat pump work mode - API parameter 1133
+HEATPUMP_WORK_MODE_MAPPING: dict[int, str] = {
+    0: "off",
+    1: "on",
+    2: "schedule",
+}
+
+HEATPUMP_WORK_MODE_OPTIONS: list[str] = list(HEATPUMP_WORK_MODE_MAPPING.values())
+
+HEATPUMP_WORK_MODE_REVERSE: dict[str, int] = {v: k for k, v in HEATPUMP_WORK_MODE_MAPPING.items()}
 
 # DHW mode - API parameter 119
 DHW_MODE_MAPPING: dict[int, str] = {
@@ -171,6 +182,17 @@ class EconetSwitchEntityDescription:
     icon: str | None = None
     bit_position: int | None = None  # For bitmap-based switches
     invert_logic: bool = False  # If True, bit=0 means ON, bit=1 means OFF
+
+
+@dataclass(frozen=True)
+class EconetButtonEntityDescription:
+    """Describes an Econet button entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API
+    device_type: DeviceType = DeviceType.CONTROLLER
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
 
 
 # Controller sensors - read only
@@ -377,17 +399,123 @@ CONTROLLER_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
 # Heat pump sensors - read only
 HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
     EconetSensorEntityDescription(
-        key="axen_work_state",
-        param_id="1133",
+        key="system_pressure",
+        param_id="1208",
         device_type=DeviceType.HEATPUMP,
-        entity_category=EntityCategory.DIAGNOSTIC,
-        icon="mdi:state-machine",
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement="bar",
+        icon="mdi:gauge",
+        precision=1,
+    ),
+    EconetSensorEntityDescription(
+        key="pump_speed",
+        param_id="1209",
+        device_type=DeviceType.HEATPUMP,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:pump",
+        precision=0,
+    ),
+)
+
+
+# Heat pump number entities - adjustable values
+HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
+    EconetNumberEntityDescription(
+        key="purge_pwm_speed",
+        param_id="1370",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:pump",
+        native_min_value=1,
+        native_max_value=100,
+        native_step=1,
+    ),
+    EconetNumberEntityDescription(
+        key="standby_pump_speed",
+        param_id="1439",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:pump",
+        native_min_value=0,
+        native_max_value=100,
+        native_step=1,
+    ),
+    EconetNumberEntityDescription(
+        key="min_pump_speed",
+        param_id="1440",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:pump",
+        native_min_value=0,
+        native_max_value=100,
+        native_step=1,
+    ),
+    EconetNumberEntityDescription(
+        key="max_pump_speed",
+        param_id="1441",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:pump",
+        native_min_value=0,
+        native_max_value=100,
+        native_step=1,
+    ),
+    EconetNumberEntityDescription(
+        key="fan_speed_0",
+        param_id="1443",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement="RPM",
+        icon="mdi:fan",
+        native_min_value=0,
+        native_max_value=1000,
+        native_step=10,
+    ),
+    EconetNumberEntityDescription(
+        key="fan_speed_1",
+        param_id="1444",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement="RPM",
+        icon="mdi:fan",
+        native_min_value=0,
+        native_max_value=1000,
+        native_step=10,
+    ),
+    EconetNumberEntityDescription(
+        key="fan_speed_2",
+        param_id="1445",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement="RPM",
+        icon="mdi:fan",
+        native_min_value=0,
+        native_max_value=1000,
+        native_step=10,
+    ),
+    EconetNumberEntityDescription(
+        key="fan_speed_3",
+        param_id="1446",
+        device_type=DeviceType.HEATPUMP,
+        native_unit_of_measurement="RPM",
+        icon="mdi:fan",
+        native_min_value=0,
+        native_max_value=1000,
+        native_step=10,
     ),
 )
 
 
 # Heat pump select entities - editable mode settings
 HEATPUMP_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
+    EconetSelectEntityDescription(
+        key="work_mode",
+        param_id="1133",
+        device_type=DeviceType.HEATPUMP,
+        icon="mdi:power",
+        options=HEATPUMP_WORK_MODE_OPTIONS,
+        value_map=HEATPUMP_WORK_MODE_MAPPING,
+        reverse_map=HEATPUMP_WORK_MODE_REVERSE,
+    ),
     EconetSelectEntityDescription(
         key="silent_mode_level",
         param_id="1385",
@@ -405,6 +533,18 @@ HEATPUMP_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         options=SILENT_MODE_SCHEDULE_OPTIONS,
         value_map=SILENT_MODE_SCHEDULE_MAPPING,
         reverse_map=SILENT_MODE_SCHEDULE_REVERSE,
+    ),
+)
+
+
+# Heat pump button entities - actions
+HEATPUMP_BUTTONS: tuple[EconetButtonEntityDescription, ...] = (
+    EconetButtonEntityDescription(
+        key="reboot",
+        param_id="1369",
+        device_type=DeviceType.HEATPUMP,
+        entity_category=EntityCategory.CONFIG,
+        icon="mdi:restart",
     ),
 )
 

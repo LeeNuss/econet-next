@@ -126,7 +126,7 @@ async def async_setup_entry(
     if heatpump_param is not None:
         for description in HEATPUMP_SENSORS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextSensor(coordinator, description))
+                entities.append(EconetNextSensor(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump sensor %s - parameter %s not found",

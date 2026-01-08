@@ -256,8 +256,40 @@
             "hdw_schedule_saturday_pm": {
                 "name": "DHW schedule Saturday PM"
             },
-            "axen_work_state": {
-                "name": "Heat pump work state"
+            "system_pressure": {
+                "name": "System pressure"
+            },
+            "pump_speed": {
+                "name": "Pump speed"
+            },
+            "purge_pwm_speed": {
+                "name": "Purge PWM speed"
+            },
+            "standby_pump_speed": {
+                "name": "Standby pump speed"
+            },
+            "min_pump_speed": {
+                "name": "Min pump speed"
+            },
+            "max_pump_speed": {
+                "name": "Max pump speed"
+            },
+            "fan_speed_0": {
+                "name": "Fan speed 0"
+            },
+            "fan_speed_1": {
+                "name": "Fan speed 1"
+            },
+            "fan_speed_2": {
+                "name": "Fan speed 2"
+            },
+            "fan_speed_3": {
+                "name": "Fan speed 3"
+            }
+        },
+        "button": {
+            "reboot": {
+                "name": "Reboot"
             }
         },
         "select": {
@@ -308,6 +340,14 @@
                 "name": "Silent mode schedule",
                 "state": {
                     "off": "Off",
+                    "schedule": "Schedule"
+                }
+            },
+            "work_mode": {
+                "name": "Work mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
                     "schedule": "Schedule"
                 }
             }
