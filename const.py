@@ -55,6 +55,14 @@ OPERATING_MODE_OPTIONS: list[str] = list(OPERATING_MODE_MAPPING.values())
 # Reverse mapping for setting values
 OPERATING_MODE_REVERSE: dict[str, int] = {v: k for k, v in OPERATING_MODE_MAPPING.items()}
 
+# Current active mode - API parameter 161 (read-only, shows actual mode when in auto)
+ACTIVE_MODE_MAPPING: dict[int, str] = {
+    1: "summer",
+    2: "winter",
+}
+
+ACTIVE_MODE_OPTIONS: list[str] = list(ACTIVE_MODE_MAPPING.values())
+
 # Silent mode level - API parameter 1385
 SILENT_MODE_LEVEL_MAPPING: dict[int, str] = {
     0: "level_1",
@@ -295,10 +303,13 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
     # Work state sensors (diagnostic)
     # Note: work_state_2 (param 162) is exposed as operating_mode select entity
     EconetSensorEntityDescription(
-        key="work_state_1",
+        key="active_operating_mode",
         param_id="161",
+        device_class=SensorDeviceClass.ENUM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        icon="mdi:state-machine",
+        icon="mdi:sun-snowflake",
+        options=ACTIVE_MODE_OPTIONS,
+        value_map=ACTIVE_MODE_MAPPING,
     ),
     EconetSensorEntityDescription(
         key="work_state_3",
