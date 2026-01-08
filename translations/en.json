@@ -24,6 +24,10 @@
         },
     },
     "entity": {
+        "binary_sensor": {
+            "alarm_antifreeze_active": {"name": "Anti-freeze active"},
+            "alarm_water_flow_failure": {"name": "Water flow failure (P01)"},
+        },
         "climate": {
             "circuit": {
                 "name": "{device_name}",

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (
     PERCENTAGE,
@@ -13,7 +14,15 @@ from homeassistant.const import (
 DOMAIN = "econet_next"
 
 # Platforms to set up
-PLATFORMS: list[str] = ["button", "climate", "number", "select", "sensor", "switch"]
+PLATFORMS: list[str] = [
+    "binary_sensor",
+    "button",
+    "climate",
+    "number",
+    "select",
+    "sensor",
+    "switch",
+]
 
 # Configuration keys
 CONF_HOST = "host"
@@ -201,6 +210,40 @@ class EconetButtonEntityDescription:
     device_type: DeviceType = DeviceType.CONTROLLER
     entity_category: EntityCategory | None = None
     icon: str | None = None
+
+
+@dataclass(frozen=True)
+class EconetBinarySensorEntityDescription:
+    """Describes an Econet binary sensor entity."""
+
+    key: str  # Translation key
+    param_id: str  # Parameter ID from API (bitfield parameter)
+    bit_position: int  # Which bit to read from the bitfield
+    device_type: DeviceType = DeviceType.CONTROLLER
+    device_class: BinarySensorDeviceClass | None = None
+    entity_category: EntityCategory | None = None
+    icon: str | None = None
+
+
+# Alarm binary sensors - read bits from alarm bitfield parameters
+ALARM_BINARY_SENSORS: tuple[EconetBinarySensorEntityDescription, ...] = (
+    EconetBinarySensorEntityDescription(
+        key="alarm_antifreeze_active",
+        param_id="1042",  # AlarmBits_1
+        bit_position=6,  # bit 6 = value 64
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:snowflake-alert",
+    ),
+    EconetBinarySensorEntityDescription(
+        key="alarm_water_flow_failure",
+        param_id="1044",  # AlarmBits_3
+        bit_position=16,  # bit 16 = value 65536
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        icon="mdi:water-alert",
+    ),
+)
 
 
 # Controller sensors - read only
