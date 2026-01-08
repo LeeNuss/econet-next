@@ -9,6 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .climate import CIRCUITS
 from .const import (
+    CIRCUIT_SCHEDULE_DIAGNOSTIC_SENSORS,
     CIRCUIT_SENSORS,
     CONTROLLER_SENSORS,
     DHW_SCHEDULE_DIAGNOSTIC_SENSORS,
@@ -16,6 +17,7 @@ from .const import (
     DOMAIN,
     EconetSensorEntityDescription,
     HEATPUMP_SENSORS,
+    SILENT_MODE_SCHEDULE_DIAGNOSTIC_SENSORS,
 )
 from .coordinator import EconetNextCoordinator
 from .entity import EconetNextEntity
@@ -134,6 +136,22 @@ async def async_setup_entry(
                     description.param_id,
                 )
 
+        # Add silent mode schedule diagnostic sensors
+        for description in SILENT_MODE_SCHEDULE_DIAGNOSTIC_SENSORS:
+            # Check that both AM and PM params exist
+            if (
+                coordinator.get_param(description.param_id_am) is not None
+                and coordinator.get_param(description.param_id_pm) is not None
+            ):
+                entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description, device_id="heatpump"))
+            else:
+                _LOGGER.debug(
+                    "Skipping silent mode schedule diagnostic sensor %s - parameters %s/%s not found",
+                    description.key,
+                    description.param_id_am,
+                    description.param_id_pm,
+                )
+
     # Add circuit sensors if circuit is active
     for circuit_num, circuit in CIRCUITS.items():
         # Check if circuit is active
@@ -167,6 +185,40 @@ async def async_setup_entry(
                         param_id,
                     )
 
+            # Add circuit schedule diagnostic sensors
+            for description in CIRCUIT_SCHEDULE_DIAGNOSTIC_SENSORS:
+                # Get AM and PM param IDs from circuit
+                param_id_am, param_id_pm = _get_circuit_schedule_diagnostic_params(circuit, description.key)
+                if (
+                    param_id_am
+                    and param_id_pm
+                    and coordinator.get_param(param_id_am) is not None
+                    and coordinator.get_param(param_id_pm) is not None
+                ):
+                    # Create a copy of the description with the actual param IDs
+                    circuit_schedule_desc = EconetSensorEntityDescription(
+                        key=description.key,
+                        param_id=param_id_am,  # Use AM as primary
+                        param_id_am=param_id_am,
+                        param_id_pm=param_id_pm,
+                        device_type=description.device_type,
+                        icon=description.icon,
+                        entity_category=description.entity_category,
+                    )
+                    entities.append(
+                        EconetNextScheduleDiagnosticSensor(
+                            coordinator, circuit_schedule_desc, device_id=f"circuit_{circuit_num}"
+                        )
+                    )
+                else:
+                    _LOGGER.debug(
+                        "Skipping Circuit %s schedule diagnostic sensor %s - parameters %s/%s not found",
+                        circuit_num,
+                        description.key,
+                        param_id_am,
+                        param_id_pm,
+                    )
+
     async_add_entities(entities)
 
 
@@ -178,6 +230,20 @@ def _get_circuit_param_id(circuit, sensor_key: str) -> str | None:
         "room_temp_setpoint": circuit.room_temp_setpoint_param,
     }
     return mapping.get(sensor_key)
+
+
+def _get_circuit_schedule_diagnostic_params(circuit, sensor_key: str) -> tuple[str | None, str | None]:
+    """Get the AM and PM parameter IDs for a circuit schedule diagnostic sensor based on its key."""
+    mapping = {
+        "schedule_sunday_decoded": (circuit.schedule_sunday_am, circuit.schedule_sunday_pm),
+        "schedule_monday_decoded": (circuit.schedule_monday_am, circuit.schedule_monday_pm),
+        "schedule_tuesday_decoded": (circuit.schedule_tuesday_am, circuit.schedule_tuesday_pm),
+        "schedule_wednesday_decoded": (circuit.schedule_wednesday_am, circuit.schedule_wednesday_pm),
+        "schedule_thursday_decoded": (circuit.schedule_thursday_am, circuit.schedule_thursday_pm),
+        "schedule_friday_decoded": (circuit.schedule_friday_am, circuit.schedule_friday_pm),
+        "schedule_saturday_decoded": (circuit.schedule_saturday_am, circuit.schedule_saturday_pm),
+    }
+    return mapping.get(sensor_key, (None, None))
 
 
 class EconetNextSensor(EconetNextEntity, SensorEntity):

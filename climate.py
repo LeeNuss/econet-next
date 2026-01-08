@@ -69,6 +69,22 @@ class Circuit:
     max_setpoint_cooling_param: str
     cooling_base_temp_param: str
 
+    # Schedule parameters (AM/PM for each day of week)
+    schedule_sunday_am: str
+    schedule_sunday_pm: str
+    schedule_monday_am: str
+    schedule_monday_pm: str
+    schedule_tuesday_am: str
+    schedule_tuesday_pm: str
+    schedule_wednesday_am: str
+    schedule_wednesday_pm: str
+    schedule_thursday_am: str
+    schedule_thursday_pm: str
+    schedule_friday_am: str
+    schedule_friday_pm: str
+    schedule_saturday_am: str
+    schedule_saturday_pm: str
+
 
 CIRCUITS = {
     1: Circuit(
@@ -96,6 +112,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="903",
         max_setpoint_cooling_param="904",
         cooling_base_temp_param="739",
+        schedule_sunday_am="247",
+        schedule_sunday_pm="248",
+        schedule_monday_am="249",
+        schedule_monday_pm="250",
+        schedule_tuesday_am="251",
+        schedule_tuesday_pm="252",
+        schedule_wednesday_am="253",
+        schedule_wednesday_pm="254",
+        schedule_thursday_am="255",
+        schedule_thursday_pm="256",
+        schedule_friday_am="257",
+        schedule_friday_pm="258",
+        schedule_saturday_am="259",
+        schedule_saturday_pm="260",
     ),
     2: Circuit(
         active_param="329",
@@ -122,6 +152,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="787",
         max_setpoint_cooling_param="788",
         cooling_base_temp_param="789",
+        schedule_sunday_am="297",
+        schedule_sunday_pm="298",
+        schedule_monday_am="299",
+        schedule_monday_pm="300",
+        schedule_tuesday_am="301",
+        schedule_tuesday_pm="302",
+        schedule_wednesday_am="303",
+        schedule_wednesday_pm="304",
+        schedule_thursday_am="305",
+        schedule_thursday_pm="306",
+        schedule_friday_am="307",
+        schedule_friday_pm="308",
+        schedule_saturday_am="309",
+        schedule_saturday_pm="310",
     ),
     3: Circuit(
         active_param="901",
@@ -148,6 +192,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="837",
         max_setpoint_cooling_param="838",
         cooling_base_temp_param="839",
+        schedule_sunday_am="881",
+        schedule_sunday_pm="882",
+        schedule_monday_am="883",
+        schedule_monday_pm="884",
+        schedule_tuesday_am="885",
+        schedule_tuesday_pm="886",
+        schedule_wednesday_am="887",
+        schedule_wednesday_pm="888",
+        schedule_thursday_am="889",
+        schedule_thursday_pm="890",
+        schedule_friday_am="891",
+        schedule_friday_pm="892",
+        schedule_saturday_am="893",
+        schedule_saturday_pm="894",
     ),
     4: Circuit(
         active_param="987",
@@ -174,6 +232,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="905",
         max_setpoint_cooling_param="906",
         cooling_base_temp_param="990",
+        schedule_sunday_am="955",
+        schedule_sunday_pm="956",
+        schedule_monday_am="957",
+        schedule_monday_pm="958",
+        schedule_tuesday_am="959",
+        schedule_tuesday_pm="960",
+        schedule_wednesday_am="961",
+        schedule_wednesday_pm="962",
+        schedule_thursday_am="963",
+        schedule_thursday_pm="964",
+        schedule_friday_am="965",
+        schedule_friday_pm="966",
+        schedule_saturday_am="967",
+        schedule_saturday_pm="968",
     ),
     5: Circuit(
         active_param="1038",
@@ -200,6 +272,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="907",
         max_setpoint_cooling_param="908",
         cooling_base_temp_param="1041",
+        schedule_sunday_am="1006",
+        schedule_sunday_pm="1007",
+        schedule_monday_am="1008",
+        schedule_monday_pm="1009",
+        schedule_tuesday_am="1010",
+        schedule_tuesday_pm="1011",
+        schedule_wednesday_am="1012",
+        schedule_wednesday_pm="1013",
+        schedule_thursday_am="1014",
+        schedule_thursday_pm="1015",
+        schedule_friday_am="1016",
+        schedule_friday_pm="1017",
+        schedule_saturday_am="1018",
+        schedule_saturday_pm="1019",
     ),
     6: Circuit(
         active_param="781",
@@ -226,6 +312,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="909",
         max_setpoint_cooling_param="910",
         cooling_base_temp_param="784",
+        schedule_sunday_am="867",
+        schedule_sunday_pm="868",
+        schedule_monday_am="869",
+        schedule_monday_pm="870",
+        schedule_tuesday_am="871",
+        schedule_tuesday_pm="872",
+        schedule_wednesday_am="873",
+        schedule_wednesday_pm="874",
+        schedule_thursday_am="875",
+        schedule_thursday_pm="876",
+        schedule_friday_am="877",
+        schedule_friday_pm="878",
+        schedule_saturday_am="879",
+        schedule_saturday_pm="880",
     ),
     7: Circuit(
         active_param="831",
@@ -252,6 +352,20 @@ CIRCUITS = {
         min_setpoint_cooling_param="911",
         max_setpoint_cooling_param="912",
         cooling_base_temp_param="834",
+        schedule_sunday_am="845",
+        schedule_sunday_pm="846",
+        schedule_monday_am="847",
+        schedule_monday_pm="848",
+        schedule_tuesday_am="849",
+        schedule_tuesday_pm="850",
+        schedule_wednesday_am="851",
+        schedule_wednesday_pm="852",
+        schedule_thursday_am="853",
+        schedule_thursday_pm="854",
+        schedule_friday_am="855",
+        schedule_friday_pm="856",
+        schedule_saturday_am="857",
+        schedule_saturday_pm="858",
     ),
 }
 

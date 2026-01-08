@@ -10,12 +10,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .climate import CIRCUITS
 from .const import (
     CIRCUIT_NUMBERS,
+    CIRCUIT_SCHEDULE_NUMBERS,
     CONTROLLER_NUMBERS,
     DHW_NUMBERS,
     DHW_SCHEDULE_NUMBERS,
     DOMAIN,
     EconetNumberEntityDescription,
     HEATPUMP_NUMBERS,
+    SILENT_MODE_SCHEDULE_NUMBERS,
 )
 from .coordinator import EconetNextCoordinator
 from .entity import EconetNextEntity
@@ -84,6 +86,17 @@ async def async_setup_entry(
                     description.param_id,
                 )
 
+        # Add silent mode schedule number entities
+        for description in SILENT_MODE_SCHEDULE_NUMBERS:
+            if coordinator.get_param(description.param_id) is not None:
+                entities.append(EconetNextNumber(coordinator, description, device_id="heatpump"))
+            else:
+                _LOGGER.debug(
+                    "Skipping silent mode schedule %s - parameter %s not found",
+                    description.key,
+                    description.param_id,
+                )
+
     # Add circuit number entities if circuit is active
     for circuit_num, circuit in CIRCUITS.items():
         # Check if circuit is active
@@ -112,6 +125,33 @@ async def async_setup_entry(
                 else:
                     _LOGGER.debug(
                         "Skipping Circuit %s number %s - parameter %s not found",
+                        circuit_num,
+                        description.key,
+                        param_id,
+                    )
+
+            # Add circuit schedule number entities
+            for description in CIRCUIT_SCHEDULE_NUMBERS:
+                # Map schedule key to the circuit schedule parameter
+                param_id = _get_circuit_schedule_param_id(circuit, description.key)
+                if param_id and coordinator.get_param(param_id) is not None:
+                    # Create a copy of the description with the actual param_id
+                    circuit_schedule_desc = EconetNumberEntityDescription(
+                        key=description.key,
+                        param_id=param_id,
+                        device_type=description.device_type,
+                        icon=description.icon,
+                        entity_category=description.entity_category,
+                        native_min_value=description.native_min_value,
+                        native_max_value=description.native_max_value,
+                        native_step=description.native_step,
+                    )
+                    entities.append(
+                        EconetNextNumber(coordinator, circuit_schedule_desc, device_id=f"circuit_{circuit_num}")
+                    )
+                else:
+                    _LOGGER.debug(
+                        "Skipping Circuit %s schedule %s - parameter %s not found",
                         circuit_num,
                         description.key,
                         param_id,
@@ -159,6 +199,27 @@ def _get_circuit_param_id(circuit, number_key: str, coordinator: EconetNextCoord
         "cooling_base_temp": circuit.cooling_base_temp_param,
     }
     return mapping.get(number_key)
+
+
+def _get_circuit_schedule_param_id(circuit, schedule_key: str) -> str | None:
+    """Get the parameter ID for a circuit schedule entity based on its key."""
+    mapping = {
+        "schedule_sunday_am": circuit.schedule_sunday_am,
+        "schedule_sunday_pm": circuit.schedule_sunday_pm,
+        "schedule_monday_am": circuit.schedule_monday_am,
+        "schedule_monday_pm": circuit.schedule_monday_pm,
+        "schedule_tuesday_am": circuit.schedule_tuesday_am,
+        "schedule_tuesday_pm": circuit.schedule_tuesday_pm,
+        "schedule_wednesday_am": circuit.schedule_wednesday_am,
+        "schedule_wednesday_pm": circuit.schedule_wednesday_pm,
+        "schedule_thursday_am": circuit.schedule_thursday_am,
+        "schedule_thursday_pm": circuit.schedule_thursday_pm,
+        "schedule_friday_am": circuit.schedule_friday_am,
+        "schedule_friday_pm": circuit.schedule_friday_pm,
+        "schedule_saturday_am": circuit.schedule_saturday_am,
+        "schedule_saturday_pm": circuit.schedule_saturday_pm,
+    }
+    return mapping.get(schedule_key)
 
 
 class EconetNextNumber(EconetNextEntity, NumberEntity):

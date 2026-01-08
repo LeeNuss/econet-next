@@ -558,6 +558,49 @@ HEATPUMP_BUTTONS: tuple[EconetButtonEntityDescription, ...] = (
 )
 
 
+# Silent mode schedule entities - bitfield for 30-minute time slots
+# Generated programmatically to reduce repetition
+_SILENT_MODE_SCHEDULE_DAYS = [
+    ("sunday", 1387, 1388),
+    ("monday", 1389, 1390),
+    ("tuesday", 1391, 1392),
+    ("wednesday", 1393, 1394),
+    ("thursday", 1395, 1396),
+    ("friday", 1397, 1398),
+    ("saturday", 1399, 1400),
+]
+
+SILENT_MODE_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
+    EconetNumberEntityDescription(
+        key=f"silent_mode_schedule_{day}_{period}",
+        param_id=str(param_id),
+        device_type=DeviceType.HEATPUMP,
+        icon="mdi:calendar-clock",
+        entity_category=EntityCategory.CONFIG,
+        native_min_value=0,
+        native_max_value=4294967295,
+        native_step=1,
+    )
+    for day, am_id, pm_id in _SILENT_MODE_SCHEDULE_DAYS
+    for period, param_id in [("am", am_id), ("pm", pm_id)]
+)
+
+
+# Silent mode schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
+SILENT_MODE_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
+    EconetSensorEntityDescription(
+        key=f"silent_mode_schedule_{day}_decoded",
+        param_id=str(am_id),  # Use AM param as primary param_id
+        param_id_am=str(am_id),
+        param_id_pm=str(pm_id),
+        device_type=DeviceType.HEATPUMP,
+        icon="mdi:clock-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    )
+    for day, am_id, pm_id in _SILENT_MODE_SCHEDULE_DAYS
+)
+
+
 # ============================================================================
 # DHW (Domestic Hot Water) Device
 # ============================================================================
@@ -1009,4 +1052,48 @@ CIRCUIT_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         bit_position=10,
         invert_logic=False,  # Bit 1 = blockage ON
     ),
+)
+
+
+# Circuit schedule entities - bitfield for 30-minute time slots
+# These are template descriptions - param_id is set dynamically per circuit
+_CIRCUIT_SCHEDULE_DAYS = [
+    ("sunday", "am", "pm"),
+    ("monday", "am", "pm"),
+    ("tuesday", "am", "pm"),
+    ("wednesday", "am", "pm"),
+    ("thursday", "am", "pm"),
+    ("friday", "am", "pm"),
+    ("saturday", "am", "pm"),
+]
+
+CIRCUIT_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
+    EconetNumberEntityDescription(
+        key=f"schedule_{day}_{period}",
+        param_id="",  # Set dynamically per circuit
+        device_type=DeviceType.CIRCUIT,
+        icon="mdi:calendar-clock",
+        entity_category=EntityCategory.CONFIG,
+        native_min_value=0,
+        native_max_value=4294967295,
+        native_step=1,
+    )
+    for day, am_period, pm_period in _CIRCUIT_SCHEDULE_DAYS
+    for period in [am_period, pm_period]
+)
+
+
+# Circuit schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
+# These are template descriptions - param_id_am and param_id_pm are set dynamically per circuit
+CIRCUIT_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
+    EconetSensorEntityDescription(
+        key=f"schedule_{day}_decoded",
+        param_id="",  # Set dynamically per circuit
+        param_id_am="",  # Set dynamically per circuit
+        param_id_pm="",  # Set dynamically per circuit
+        device_type=DeviceType.CIRCUIT,
+        icon="mdi:clock-outline",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    )
+    for day, _, _ in _CIRCUIT_SCHEDULE_DAYS
 )

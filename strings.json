@@ -157,6 +157,48 @@
             },
             "compressor_frequency": {
                 "name": "Compressor frequency"
+            },
+            "silent_mode_schedule_sunday_decoded": {
+                "name": "Silent mode schedule Sunday (decoded)"
+            },
+            "silent_mode_schedule_monday_decoded": {
+                "name": "Silent mode schedule Monday (decoded)"
+            },
+            "silent_mode_schedule_tuesday_decoded": {
+                "name": "Silent mode schedule Tuesday (decoded)"
+            },
+            "silent_mode_schedule_wednesday_decoded": {
+                "name": "Silent mode schedule Wednesday (decoded)"
+            },
+            "silent_mode_schedule_thursday_decoded": {
+                "name": "Silent mode schedule Thursday (decoded)"
+            },
+            "silent_mode_schedule_friday_decoded": {
+                "name": "Silent mode schedule Friday (decoded)"
+            },
+            "silent_mode_schedule_saturday_decoded": {
+                "name": "Silent mode schedule Saturday (decoded)"
+            },
+            "schedule_sunday_decoded": {
+                "name": "Schedule Sunday (decoded)"
+            },
+            "schedule_monday_decoded": {
+                "name": "Schedule Monday (decoded)"
+            },
+            "schedule_tuesday_decoded": {
+                "name": "Schedule Tuesday (decoded)"
+            },
+            "schedule_wednesday_decoded": {
+                "name": "Schedule Wednesday (decoded)"
+            },
+            "schedule_thursday_decoded": {
+                "name": "Schedule Thursday (decoded)"
+            },
+            "schedule_friday_decoded": {
+                "name": "Schedule Friday (decoded)"
+            },
+            "schedule_saturday_decoded": {
+                "name": "Schedule Saturday (decoded)"
             }
         },
         "number": {
@@ -288,6 +330,90 @@
             },
             "fan_speed_3": {
                 "name": "Fan speed 3"
+            },
+            "silent_mode_schedule_sunday_am": {
+                "name": "Silent mode schedule Sunday AM"
+            },
+            "silent_mode_schedule_sunday_pm": {
+                "name": "Silent mode schedule Sunday PM"
+            },
+            "silent_mode_schedule_monday_am": {
+                "name": "Silent mode schedule Monday AM"
+            },
+            "silent_mode_schedule_monday_pm": {
+                "name": "Silent mode schedule Monday PM"
+            },
+            "silent_mode_schedule_tuesday_am": {
+                "name": "Silent mode schedule Tuesday AM"
+            },
+            "silent_mode_schedule_tuesday_pm": {
+                "name": "Silent mode schedule Tuesday PM"
+            },
+            "silent_mode_schedule_wednesday_am": {
+                "name": "Silent mode schedule Wednesday AM"
+            },
+            "silent_mode_schedule_wednesday_pm": {
+                "name": "Silent mode schedule Wednesday PM"
+            },
+            "silent_mode_schedule_thursday_am": {
+                "name": "Silent mode schedule Thursday AM"
+            },
+            "silent_mode_schedule_thursday_pm": {
+                "name": "Silent mode schedule Thursday PM"
+            },
+            "silent_mode_schedule_friday_am": {
+                "name": "Silent mode schedule Friday AM"
+            },
+            "silent_mode_schedule_friday_pm": {
+                "name": "Silent mode schedule Friday PM"
+            },
+            "silent_mode_schedule_saturday_am": {
+                "name": "Silent mode schedule Saturday AM"
+            },
+            "silent_mode_schedule_saturday_pm": {
+                "name": "Silent mode schedule Saturday PM"
+            },
+            "schedule_sunday_am": {
+                "name": "Schedule Sunday AM"
+            },
+            "schedule_sunday_pm": {
+                "name": "Schedule Sunday PM"
+            },
+            "schedule_monday_am": {
+                "name": "Schedule Monday AM"
+            },
+            "schedule_monday_pm": {
+                "name": "Schedule Monday PM"
+            },
+            "schedule_tuesday_am": {
+                "name": "Schedule Tuesday AM"
+            },
+            "schedule_tuesday_pm": {
+                "name": "Schedule Tuesday PM"
+            },
+            "schedule_wednesday_am": {
+                "name": "Schedule Wednesday AM"
+            },
+            "schedule_wednesday_pm": {
+                "name": "Schedule Wednesday PM"
+            },
+            "schedule_thursday_am": {
+                "name": "Schedule Thursday AM"
+            },
+            "schedule_thursday_pm": {
+                "name": "Schedule Thursday PM"
+            },
+            "schedule_friday_am": {
+                "name": "Schedule Friday AM"
+            },
+            "schedule_friday_pm": {
+                "name": "Schedule Friday PM"
+            },
+            "schedule_saturday_am": {
+                "name": "Schedule Saturday AM"
+            },
+            "schedule_saturday_pm": {
+                "name": "Schedule Saturday PM"
             }
         },
         "button": {
