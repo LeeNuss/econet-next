@@ -42,6 +42,14 @@ Copy the `custom_components/econet_next` folder to your Home Assistant `config/c
 2. Search for **ecoNET Next**
 3. Enter the IP address and port (default: 8000) of your gateway
 
+## Schedule Card
+
+For weekly heating schedule management, install the [econet-schedule-card](https://github.com/LeeNuss/econet-schedule-card) Lovelace card:
+
+1. Open HACS > **Frontend** > three-dot menu > **Custom repositories**
+2. Add `https://github.com/LeeNuss/econet-schedule-card` as type **Dashboard**
+3. Click **Download** and reload your browser
+
 ## Supported Devices
 
 - Plum ecoMAX controllers (ecoMAX360i and similar)
