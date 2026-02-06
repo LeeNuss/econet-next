@@ -185,6 +185,9 @@
             "fan_speed": {
                 "name": "Fan Speed"
             },
+            "target_temperature": {
+                "name": "Target temperature"
+            },
             "silent_mode_schedule_sunday_decoded": {
                 "name": "Silent mode schedule Sunday (decoded)"
             },

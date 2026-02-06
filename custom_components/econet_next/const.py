@@ -498,6 +498,16 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:fan",
         precision=1,
     ),
+    EconetSensorEntityDescription(
+        key="target_temperature",
+        param_id="523",
+        device_type=DeviceType.HEATPUMP,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        icon="mdi:thermometer-auto",
+        precision=0,
+    ),
 )
 
 
