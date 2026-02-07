@@ -20,12 +20,12 @@ def fixture_path() -> Path:
 
 @pytest.fixture
 def all_params_response(fixture_path: Path) -> dict:
-    """Load the allParams.json fixture in index-keyed format.
+    """Load the parameters.json fixture in index-keyed format.
 
     This represents the format AFTER the API client transforms the gateway response.
     Used by coordinator and entity tests.
     """
-    with open(fixture_path / "allParams.json") as f:
+    with open(fixture_path / "parameters.json") as f:
         return json.load(f)
 
 
