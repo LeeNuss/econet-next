@@ -21,9 +21,7 @@ class EconextConnectionError(EconextApiError):
 class EconextApi:
     """API client for the econext-gateway.
 
-    The gateway returns parameters keyed by name with an index field.
-    This client transforms the response to be keyed by index (as string)
-    so existing entity descriptions that use numeric param_id still work.
+    The gateway returns parameters keyed by index (as string).
     """
 
     def __init__(
@@ -37,8 +35,6 @@ class EconextApi:
         self._port = port
         self._session = session
         self._base_url = f"http://{host}:{port}"
-        # Reverse mapping: index string -> param name (for set operations)
-        self._index_to_name: dict[str, str] = {}
 
     @property
     def host(self) -> str:
@@ -53,11 +49,8 @@ class EconextApi:
     async def async_fetch_all_params(self) -> dict[str, dict[str, Any]]:
         """Fetch all parameters from the gateway.
 
-        The gateway returns:
-            {"timestamp": "...", "parameters": {"ParamName": {"index": 0, "value": 42, ...}}}
-
-        We transform this to match the format the integration expects:
-            {"0": {"value": 42, "name": "ParamName", "minv": 20.0, "maxv": 80.0, ...}}
+        The gateway returns parameters already keyed by index (as string):
+            {"timestamp": "...", "parameters": {"0": {"index": 0, "name": "PS", "value": 42, ...}}}
 
         Returns:
             Dictionary of parameters keyed by index (as string).
@@ -76,34 +69,20 @@ class EconextApi:
         except aiohttp.ClientError as err:
             raise EconextConnectionError(f"Connection error: {err}") from err
 
-        # Gateway wraps params in "parameters" key
         gateway_params = data.get("parameters", data)
 
-        # Transform: name-keyed -> index-keyed
+        # Map gateway field names to what the integration expects
         params: dict[str, dict[str, Any]] = {}
-        index_to_name: dict[str, str] = {}
-
-        for name, param_data in gateway_params.items():
-            index = param_data.get("index")
-            if index is None:
-                continue
-
-            index_str = str(index)
-            index_to_name[index_str] = name
-
-            # Map gateway fields to the format the integration uses
+        for index_str, param_data in gateway_params.items():
             params[index_str] = {
                 "value": param_data.get("value"),
-                "name": name,
+                "name": param_data.get("name"),
                 "minv": param_data.get("min"),
                 "maxv": param_data.get("max"),
                 "writable": param_data.get("writable", False),
                 "type": param_data.get("type"),
                 "unit": param_data.get("unit"),
             }
-
-        # Update the reverse mapping for set operations
-        self._index_to_name = index_to_name
 
         _LOGGER.debug("Fetched %d parameters from gateway", len(params))
         return params
@@ -133,23 +112,18 @@ class EconextApi:
         _LOGGER.debug("Fetched %d alarms from gateway", len(alarms))
         return alarms
 
-    async def async_set_param(self, param_id: str | int, value: Any) -> bool:
+    async def async_set_param(self, name: str, value: Any) -> bool:
         """Set a parameter value on the device.
 
         Args:
-            param_id: The parameter index (used to look up the param name).
+            name: The parameter name (used in the gateway URL path).
             value: The new value.
 
         Returns:
             True if successful.
 
         """
-        index_str = str(param_id)
-        param_name = self._index_to_name.get(index_str)
-        if param_name is None:
-            raise EconextApiError(f"Unknown parameter index {param_id} - no name mapping found")
-
-        url = f"{self._base_url}{API_ENDPOINT_PARAMETERS}/{param_name}"
+        url = f"{self._base_url}{API_ENDPOINT_PARAMETERS}/{name}"
         timeout = aiohttp.ClientTimeout(total=10)
 
         try:
@@ -157,7 +131,7 @@ class EconextApi:
                 if response.status != 200:
                     raise EconextApiError(f"API returned status {response.status}")
 
-                _LOGGER.debug("Set param %s (%s) to %s", param_name, param_id, value)
+                _LOGGER.debug("Set param %s to %s", name, value)
                 return True
 
         except aiohttp.ClientError as err:

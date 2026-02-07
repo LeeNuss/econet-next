@@ -83,18 +83,24 @@ class EconextCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
     async def async_set_param(self, param_id: str | int, value: Any) -> bool:
         """Set a parameter value on the device with optimistic local update.
 
-        Calls the API to set the value, and on success updates the local cache
-        immediately for instant UI feedback.
+        Looks up the parameter name from cached data, calls the gateway API
+        by name, and on success updates the local cache for instant UI feedback.
 
         """
-        # Convert param_id to int for API call
-        result = await self.api.async_set_param(int(param_id), value)
+        param_key = str(param_id)
+        param = self.get_param(param_key)
+        if param is None:
+            raise EconextApiError(f"Unknown parameter: {param_id}")
+
+        name = param.get("name")
+        if not name:
+            raise EconextApiError(f"Parameter {param_id} has no name")
+
+        result = await self.api.async_set_param(name, value)
 
         # On success, update local cache for instant UI feedback
-        if result and self.data is not None:
-            param_key = str(param_id)
-            if param_key in self.data:
-                self.data[param_key]["value"] = value
-                self.async_set_updated_data(self.data)
+        if result and self.data is not None and param_key in self.data:
+            self.data[param_key]["value"] = value
+            self.async_set_updated_data(self.data)
 
         return result
