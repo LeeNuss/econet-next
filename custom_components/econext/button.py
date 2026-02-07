@@ -1,4 +1,4 @@
-"""Button platform for ecoNET Next integration."""
+"""Button platform for ecoNEXT integration."""
 
 import logging
 
@@ -7,9 +7,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, EconetButtonEntityDescription, HEATPUMP_BUTTONS
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .const import DOMAIN, EconextButtonEntityDescription, HEATPUMP_BUTTONS
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,17 +19,17 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next button entities from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT button entities from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    entities: list[EconetNextButton] = []
+    entities: list[EconextButton] = []
 
     # Add heat pump button entities if heat pump device should be created
     heatpump_param = coordinator.get_param("1133")
     if heatpump_param is not None:
         for description in HEATPUMP_BUTTONS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextButton(coordinator, description, device_id="heatpump"))
+                entities.append(EconextButton(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump button %s - parameter %s not found",
@@ -40,13 +40,13 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EconetNextButton(EconetNextEntity, ButtonEntity):
-    """Representation of an ecoNET Next button entity."""
+class EconextButton(EconextEntity, ButtonEntity):
+    """Representation of an ecoNEXT button entity."""
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetButtonEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextButtonEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the button entity."""

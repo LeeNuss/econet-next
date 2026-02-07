@@ -1,23 +1,23 @@
-"""Tests for the econet_next API client."""
+"""Tests for the econext API client."""
 
 from unittest.mock import AsyncMock, MagicMock
 
 import aiohttp
 import pytest
 
-from custom_components.econet_next.api import (
-    EconetApiError,
-    EconetConnectionError,
-    EconetNextApi,
+from custom_components.econext.api import (
+    EconextApiError,
+    EconextConnectionError,
+    EconextApi,
 )
 
 
-class TestEconetNextApi:
-    """Test the EconetNextApi class."""
+class TestEconextApi:
+    """Test the EconextApi class."""
 
     def test_init(self, mock_session: MagicMock) -> None:
         """Test API client initialization."""
-        api = EconetNextApi(
+        api = EconextApi(
             host="192.168.1.100",
             port=8000,
             session=mock_session,
@@ -29,7 +29,7 @@ class TestEconetNextApi:
 
     def test_init_custom_port(self, mock_session: MagicMock) -> None:
         """Test API client with custom port."""
-        api = EconetNextApi(
+        api = EconextApi(
             host="192.168.1.100",
             port=9000,
             session=mock_session,
@@ -57,7 +57,7 @@ class TestFetchAllParams:
 
         mock_session.get = MagicMock(return_value=mock_response)
 
-        api = EconetNextApi(
+        api = EconextApi(
             host="192.168.1.100",
             port=8000,
             session=mock_session,
@@ -103,7 +103,7 @@ class TestFetchAllParams:
 
         mock_session.get = MagicMock(return_value=mock_response)
 
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
         result = await api.async_fetch_all_params()
 
         assert "42" in result
@@ -124,9 +124,9 @@ class TestFetchAllParams:
 
         mock_session.get = MagicMock(return_value=mock_response)
 
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
 
-        with pytest.raises(EconetApiError, match="status 500"):
+        with pytest.raises(EconextApiError, match="status 500"):
             await api.async_fetch_all_params()
 
     @pytest.mark.asyncio
@@ -134,9 +134,9 @@ class TestFetchAllParams:
         """Test connection error handling."""
         mock_session.get = MagicMock(side_effect=aiohttp.ClientError("Connection failed"))
 
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
 
-        with pytest.raises(EconetConnectionError, match="Connection error"):
+        with pytest.raises(EconextConnectionError, match="Connection error"):
             await api.async_fetch_all_params()
 
     @pytest.mark.asyncio
@@ -160,7 +160,7 @@ class TestFetchAllParams:
 
         mock_session.get = MagicMock(return_value=mock_response)
 
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
         await api.async_fetch_all_params()
 
         assert api._index_to_name["10"] == "ParamA"
@@ -194,7 +194,7 @@ class TestSetParam:
         mock_session.get = MagicMock(return_value=fetch_response)
         mock_session.post = MagicMock(return_value=set_response)
 
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
 
         # Fetch first to build mapping
         await api.async_fetch_all_params()
@@ -212,15 +212,15 @@ class TestSetParam:
     @pytest.mark.asyncio
     async def test_set_param_unknown_index(self, mock_session: MagicMock) -> None:
         """Test setting a parameter with unknown index raises error."""
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
 
-        with pytest.raises(EconetApiError, match="Unknown parameter index"):
+        with pytest.raises(EconextApiError, match="Unknown parameter index"):
             await api.async_set_param(99999, 45)
 
     @pytest.mark.asyncio
     async def test_set_param_api_error(self, mock_session: MagicMock) -> None:
         """Test API error when setting parameter."""
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
         api._index_to_name = {"103": "dhwTarget"}
 
         mock_response = AsyncMock()
@@ -230,7 +230,7 @@ class TestSetParam:
 
         mock_session.post = MagicMock(return_value=mock_response)
 
-        with pytest.raises(EconetApiError, match="status 500"):
+        with pytest.raises(EconextApiError, match="status 500"):
             await api.async_set_param(103, 45)
 
 
@@ -252,7 +252,7 @@ class TestTestConnection:
 
         mock_session.get = MagicMock(return_value=mock_response)
 
-        api = EconetNextApi(host="192.168.1.100", port=8000, session=mock_session)
+        api = EconextApi(host="192.168.1.100", port=8000, session=mock_session)
 
         result = await api.async_test_connection()
 

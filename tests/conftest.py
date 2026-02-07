@@ -1,4 +1,4 @@
-"""Test configuration for econet_next integration tests."""
+"""Test configuration for econext integration tests."""
 
 import json
 import sys
@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 import pytest
 from aiohttp import ClientSession
 
-# Add project root to path so econet_next package can be imported
+# Add project root to path so econext package can be imported
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 

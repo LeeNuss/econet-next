@@ -1,12 +1,12 @@
-# ecoNET Next
+# ecoNEXT
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-Home Assistant custom integration for Plum ecoNET heat pump controllers via the [econet-gm3-gateway](https://github.com/LeeNuss/econet-gm3-gateway).
+Home Assistant custom integration for Plum heat pump controllers via the [econext-gateway](https://github.com/LeeNuss/econext-gateway).
 
 ## Overview
 
-This integration connects to an econet-gm3-gateway running on your local network, providing real-time monitoring and control of your ecoNET-based heating system (ecoMAX, ecoTRONIC, ecoSOL controllers).
+This integration connects to an econext-gateway running on your local network, providing real-time monitoring and control of your GM3 protocol based heat pump controllers (ecoMAX360i).
 
 ## Features
 
@@ -21,7 +21,7 @@ This integration connects to an econet-gm3-gateway running on your local network
 ## Requirements
 
 - Home Assistant 2024.1.0 or newer
-- A running [econet-gm3-gateway](https://github.com/LeeNuss/econet-gm3-gateway) instance connected to your controller via RS-485
+- A running [econext-gateway](https://github.com/LeeNuss/econext-gateway) instance connected to your controller via RS-485
 
 ## Installation
 
@@ -29,25 +29,25 @@ This integration connects to an econet-gm3-gateway running on your local network
 
 1. Open HACS in Home Assistant
 2. Go to **Integrations** > three-dot menu > **Custom repositories**
-3. Add `https://github.com/LeeNuss/econet-next` as type **Integration**
+3. Add `https://github.com/LeeNuss/econext` as type **Integration**
 4. Click **Download** and restart Home Assistant
 
 ### Manual
 
-Copy the `custom_components/econet_next` folder to your Home Assistant `config/custom_components/` directory and restart.
+Copy the `custom_components/econext` folder to your Home Assistant `config/custom_components/` directory and restart.
 
 ## Configuration
 
 1. Go to **Settings** > **Devices & Services** > **Add Integration**
-2. Search for **ecoNET Next**
+2. Search for **ecoNEXT**
 3. Enter the IP address and port (default: 8000) of your gateway
 
 ## Schedule Card
 
-For weekly heating schedule management, install the [econet-schedule-card](https://github.com/LeeNuss/econet-schedule-card) Lovelace card:
+For weekly heating schedule management, install the [econext-schedule-card](https://github.com/LeeNuss/econext-schedule-card) Lovelace card:
 
 1. Open HACS > **Frontend** > three-dot menu > **Custom repositories**
-2. Add `https://github.com/LeeNuss/econet-schedule-card` as type **Dashboard**
+2. Add `https://github.com/LeeNuss/econext-schedule-card` as type **Dashboard**
 3. Click **Download** and reload your browser
 
 ## Supported Devices

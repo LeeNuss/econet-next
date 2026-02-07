@@ -1,1 +1,1 @@
-"""Tests for econet_next integration."""
+"""Tests for econext integration."""

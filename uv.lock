@@ -801,7 +801,7 @@ wheels = [
 ]
 
 [[package]]
-name = "econet-next"
+name = "econext"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

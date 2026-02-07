@@ -2,16 +2,16 @@
     "config": {
         "step": {
             "user": {
-                "title": "Connect to ecoNET Gateway",
-                "description": "Enter the connection details for your econet-gm3-gateway.",
+                "title": "Connect to ecoNEXT Gateway",
+                "description": "Enter the connection details for your econext-gateway.",
                 "data": {
                     "host": "Host",
                     "port": "Port"
                 }
             },
             "reconfigure": {
-                "title": "Reconfigure ecoNET Gateway",
-                "description": "Update the connection details for your econet-gm3-gateway.",
+                "title": "Reconfigure ecoNEXT Gateway",
+                "description": "Update the connection details for your econext-gateway.",
                 "data": {
                     "host": "Host",
                     "port": "Port"

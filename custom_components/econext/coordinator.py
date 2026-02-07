@@ -1,4 +1,4 @@
-"""Data coordinator for ecoNET Next."""
+"""Data coordinator for ecoNEXT."""
 
 from datetime import timedelta
 import logging
@@ -7,16 +7,16 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import EconetApiError, EconetNextApi
+from .api import EconextApiError, EconextApi
 from .const import DOMAIN, UPDATE_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class EconetNextCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
-    """Coordinator to manage data updates from ecoNET device."""
+class EconextCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
+    """Coordinator to manage data updates from econext device."""
 
-    def __init__(self, hass: HomeAssistant, api: EconetNextApi) -> None:
+    def __init__(self, hass: HomeAssistant, api: EconextApi) -> None:
         """Initialize the coordinator."""
         super().__init__(
             hass,
@@ -30,7 +30,7 @@ class EconetNextCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]]):
         """Fetch data from the API."""
         try:
             return await self.api.async_fetch_all_params()
-        except EconetApiError as err:
+        except EconextApiError as err:
             raise UpdateFailed(f"Error fetching data: {err}") from err
 
     def get_param(self, param_id: str | int) -> dict[str, Any] | None:

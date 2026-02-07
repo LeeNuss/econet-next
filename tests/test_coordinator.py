@@ -1,12 +1,12 @@
-"""Tests for the econet_next data coordinator."""
+"""Tests for the econext data coordinator."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
-from custom_components.econet_next.api import EconetApiError, EconetNextApi
-from custom_components.econet_next.coordinator import EconetNextCoordinator
+from custom_components.econext.api import EconextApiError, EconextApi
+from custom_components.econext.coordinator import EconextCoordinator
 
 
 @pytest.fixture
@@ -19,8 +19,8 @@ def mock_hass() -> MagicMock:
 
 @pytest.fixture
 def mock_api() -> MagicMock:
-    """Create a mock EconetNextApi."""
-    return MagicMock(spec=EconetNextApi)
+    """Create a mock EconextApi."""
+    return MagicMock(spec=EconextApi)
 
 
 @pytest.fixture(autouse=True)
@@ -35,10 +35,10 @@ class TestCoordinatorInit:
 
     def test_init(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test coordinator initialization."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
 
         assert coordinator.api == mock_api
-        assert coordinator.name == "econet_next"
+        assert coordinator.name == "econext"
         assert coordinator.update_interval.total_seconds() == 30
 
 
@@ -55,7 +55,7 @@ class TestAsyncUpdateData:
         """Test successful data update."""
         mock_api.async_fetch_all_params = AsyncMock(return_value=all_params_parsed)
 
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         result = await coordinator._async_update_data()
 
         assert result == all_params_parsed
@@ -64,9 +64,9 @@ class TestAsyncUpdateData:
     @pytest.mark.asyncio
     async def test_update_data_api_error(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test that API errors are wrapped in UpdateFailed."""
-        mock_api.async_fetch_all_params = AsyncMock(side_effect=EconetApiError("Connection failed"))
+        mock_api.async_fetch_all_params = AsyncMock(side_effect=EconextApiError("Connection failed"))
 
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
 
         with pytest.raises(UpdateFailed, match="Error fetching data"):
             await coordinator._async_update_data()
@@ -82,7 +82,7 @@ class TestGetParam:
         all_params_parsed: dict,
     ) -> None:
         """Test getting an existing parameter."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = all_params_parsed
 
         # Test with string ID
@@ -102,7 +102,7 @@ class TestGetParam:
         all_params_parsed: dict,
     ) -> None:
         """Test getting a non-existent parameter."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = all_params_parsed
 
         param = coordinator.get_param("99999")
@@ -110,7 +110,7 @@ class TestGetParam:
 
     def test_get_param_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting a parameter when data is None."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = None
 
         param = coordinator.get_param("10")
@@ -127,7 +127,7 @@ class TestGetParamValue:
         all_params_parsed: dict,
     ) -> None:
         """Test getting a parameter value."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = all_params_parsed
 
         # UID parameter (id 10)
@@ -145,7 +145,7 @@ class TestGetParamValue:
         all_params_parsed: dict,
     ) -> None:
         """Test getting a non-existent parameter value."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = all_params_parsed
 
         value = coordinator.get_param_value("99999")
@@ -153,7 +153,7 @@ class TestGetParamValue:
 
     def test_get_param_value_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting a parameter value when data is None."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = None
 
         value = coordinator.get_param_value(10)
@@ -170,7 +170,7 @@ class TestDeviceInfo:
         all_params_parsed: dict,
     ) -> None:
         """Test getting device UID."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = all_params_parsed
 
         uid = coordinator.get_device_uid()
@@ -178,7 +178,7 @@ class TestDeviceInfo:
 
     def test_get_device_uid_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting device UID when data is unavailable."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = None
 
         uid = coordinator.get_device_uid()
@@ -191,7 +191,7 @@ class TestDeviceInfo:
         all_params_parsed: dict,
     ) -> None:
         """Test getting device name."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = all_params_parsed
 
         name = coordinator.get_device_name()
@@ -199,7 +199,7 @@ class TestDeviceInfo:
 
     def test_get_device_name_no_data(self, mock_hass: MagicMock, mock_api: MagicMock) -> None:
         """Test getting device name when data is unavailable."""
-        coordinator = EconetNextCoordinator(mock_hass, mock_api)
+        coordinator = EconextCoordinator(mock_hass, mock_api)
         coordinator.data = None
 
         name = coordinator.get_device_name()

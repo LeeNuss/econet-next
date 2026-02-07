@@ -1,4 +1,4 @@
-"""API client for ecoNET Next (GM3 Gateway)."""
+"""API client for ecoNEXT (GM3 Gateway)."""
 
 import logging
 from typing import Any
@@ -10,16 +10,16 @@ from .const import API_ENDPOINT_PARAMETERS
 _LOGGER = logging.getLogger(__name__)
 
 
-class EconetApiError(Exception):
+class EconextApiError(Exception):
     """Base exception for API errors."""
 
 
-class EconetConnectionError(EconetApiError):
+class EconextConnectionError(EconextApiError):
     """Connection error."""
 
 
-class EconetNextApi:
-    """API client for the econet-gm3-gateway.
+class EconextApi:
+    """API client for the econext-gateway.
 
     The gateway returns parameters keyed by name with an index field.
     This client transforms the response to be keyed by index (as string)
@@ -69,12 +69,12 @@ class EconetNextApi:
         try:
             async with self._session.get(url, timeout=timeout) as response:
                 if response.status != 200:
-                    raise EconetApiError(f"API returned status {response.status}")
+                    raise EconextApiError(f"API returned status {response.status}")
 
                 data = await response.json()
 
         except aiohttp.ClientError as err:
-            raise EconetConnectionError(f"Connection error: {err}") from err
+            raise EconextConnectionError(f"Connection error: {err}") from err
 
         # Gateway wraps params in "parameters" key
         gateway_params = data.get("parameters", data)
@@ -122,7 +122,7 @@ class EconetNextApi:
         index_str = str(param_id)
         param_name = self._index_to_name.get(index_str)
         if param_name is None:
-            raise EconetApiError(f"Unknown parameter index {param_id} - no name mapping found")
+            raise EconextApiError(f"Unknown parameter index {param_id} - no name mapping found")
 
         url = f"{self._base_url}{API_ENDPOINT_PARAMETERS}/{param_name}"
         timeout = aiohttp.ClientTimeout(total=10)
@@ -130,13 +130,13 @@ class EconetNextApi:
         try:
             async with self._session.post(url, json={"value": value}, timeout=timeout) as response:
                 if response.status != 200:
-                    raise EconetApiError(f"API returned status {response.status}")
+                    raise EconextApiError(f"API returned status {response.status}")
 
                 _LOGGER.debug("Set param %s (%s) to %s", param_name, param_id, value)
                 return True
 
         except aiohttp.ClientError as err:
-            raise EconetConnectionError(f"Connection error: {err}") from err
+            raise EconextConnectionError(f"Connection error: {err}") from err
 
     async def async_test_connection(self) -> dict[str, Any]:
         """Test the connection and return device info.

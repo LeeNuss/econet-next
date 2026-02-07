@@ -1,4 +1,4 @@
-"""Climate platform for ecoNET Next integration."""
+"""Climate platform for ecoNEXT integration."""
 
 import logging
 from dataclasses import dataclass
@@ -20,8 +20,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -381,8 +381,8 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next climate entities from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT climate entities from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
     entities: list[CircuitClimate] = []
 
@@ -415,7 +415,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class CircuitClimate(EconetNextEntity, ClimateEntity):
+class CircuitClimate(EconextEntity, ClimateEntity):
     """Representation of a heating circuit climate entity."""
 
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
@@ -437,7 +437,7 @@ class CircuitClimate(EconetNextEntity, ClimateEntity):
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
+        coordinator: EconextCoordinator,
         circuit_num: int,
         name_param: str,
         work_state_param: str,

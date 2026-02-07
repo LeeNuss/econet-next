@@ -17,10 +17,10 @@ jobs:
       - name: Create integration zip
         run: |
           cd custom_components
-          zip -r ../econet-next.zip econet_next/
+          zip -r ../econext.zip econext/
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: econet-next.zip
+          files: econext.zip

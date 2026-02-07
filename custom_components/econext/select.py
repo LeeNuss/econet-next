@@ -1,4 +1,4 @@
-"""Select platform for ecoNET Next integration."""
+"""Select platform for ecoNEXT integration."""
 
 import logging
 
@@ -13,11 +13,11 @@ from .const import (
     CONTROLLER_SELECTS,
     DHW_SELECTS,
     DOMAIN,
-    EconetSelectEntityDescription,
+    EconextSelectEntityDescription,
     HEATPUMP_SELECTS,
 )
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,16 +27,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next select entities from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT select entities from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    entities: list[EconetNextSelect] = []
+    entities: list[EconextSelect] = []
 
     # Add controller select entities
     for description in CONTROLLER_SELECTS:
         # Only add if parameter exists in data
         if coordinator.get_param(description.param_id) is not None:
-            entities.append(EconetNextSelect(coordinator, description))
+            entities.append(EconextSelect(coordinator, description))
         else:
             _LOGGER.debug(
                 "Skipping select %s - parameter %s not found",
@@ -51,7 +51,7 @@ async def async_setup_entry(
         if dhw_temp_value is not None and dhw_temp_value != 999.0:
             for description in DHW_SELECTS:
                 if coordinator.get_param(description.param_id) is not None:
-                    entities.append(EconetNextSelect(coordinator, description))
+                    entities.append(EconextSelect(coordinator, description))
                 else:
                     _LOGGER.debug(
                         "Skipping DHW select %s - parameter %s not found",
@@ -65,7 +65,7 @@ async def async_setup_entry(
     if heatpump_param is not None:
         for description in HEATPUMP_SELECTS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextSelect(coordinator, description))
+                entities.append(EconextSelect(coordinator, description))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump select %s - parameter %s not found",
@@ -84,7 +84,7 @@ async def async_setup_entry(
                 param_id = _get_circuit_param_id(circuit, description.key)
                 if param_id and coordinator.get_param(param_id) is not None:
                     # Create a copy of the description with the actual param_id
-                    circuit_desc = EconetSelectEntityDescription(
+                    circuit_desc = EconextSelectEntityDescription(
                         key=description.key,
                         param_id=param_id,
                         device_type=description.device_type,
@@ -94,7 +94,7 @@ async def async_setup_entry(
                         value_map=description.value_map,
                         reverse_map=description.reverse_map,
                     )
-                    entities.append(EconetNextSelect(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
+                    entities.append(EconextSelect(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
                 else:
                     _LOGGER.debug(
                         "Skipping Circuit %s select %s - parameter %s not found",
@@ -114,13 +114,13 @@ def _get_circuit_param_id(circuit, select_key: str) -> str | None:
     return mapping.get(select_key)
 
 
-class EconetNextSelect(EconetNextEntity, SelectEntity):
-    """Representation of an ecoNET Next select entity."""
+class EconextSelect(EconextEntity, SelectEntity):
+    """Representation of an ecoNEXT select entity."""
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetSelectEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextSelectEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the select entity."""

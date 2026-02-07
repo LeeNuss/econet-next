@@ -1,4 +1,4 @@
-"""Tests for the econet_next climate platform."""
+"""Tests for the econext climate platform."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -12,8 +12,8 @@ from homeassistant.components.climate.const import PRESET_COMFORT, PRESET_ECO
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 
-from custom_components.econet_next.climate import CIRCUITS, CircuitClimate, CircuitWorkState, async_setup_entry
-from custom_components.econet_next.coordinator import EconetNextCoordinator
+from custom_components.econext.climate import CIRCUITS, CircuitClimate, CircuitWorkState, async_setup_entry
+from custom_components.econext.coordinator import EconextCoordinator
 
 
 @pytest.fixture(autouse=True)
@@ -39,9 +39,9 @@ def mock_api() -> MagicMock:
 
 
 @pytest.fixture
-def coordinator(mock_hass: MagicMock, mock_api: MagicMock, all_params_parsed: dict) -> EconetNextCoordinator:
+def coordinator(mock_hass: MagicMock, mock_api: MagicMock, all_params_parsed: dict) -> EconextCoordinator:
     """Create a coordinator with data."""
-    coordinator = EconetNextCoordinator(mock_hass, mock_api)
+    coordinator = EconextCoordinator(mock_hass, mock_api)
     coordinator.data = all_params_parsed
     coordinator.async_set_param = AsyncMock()
     return coordinator
@@ -71,12 +71,12 @@ class TestAsyncSetupEntry:
 
     @pytest.mark.asyncio
     async def test_setup_creates_all_circuits_in_fixture(
-        self, mock_hass: MagicMock, coordinator: EconetNextCoordinator
+        self, mock_hass: MagicMock, coordinator: EconextCoordinator
     ) -> None:
         """Test only active circuits create climate entities from fixture data."""
         mock_entry = MagicMock()
         mock_entry.entry_id = "test_entry"
-        mock_hass.data = {"econet_next": {"test_entry": {"coordinator": coordinator}}}
+        mock_hass.data = {"econext": {"test_entry": {"coordinator": coordinator}}}
 
         entities_added = []
 
@@ -91,12 +91,12 @@ class TestAsyncSetupEntry:
 
     @pytest.mark.asyncio
     async def test_setup_skips_inactive_circuits(
-        self, mock_hass: MagicMock, coordinator: EconetNextCoordinator
+        self, mock_hass: MagicMock, coordinator: EconextCoordinator
     ) -> None:
         """Test circuits with active param value=0 are skipped."""
         mock_entry = MagicMock()
         mock_entry.entry_id = "test_entry"
-        mock_hass.data = {"econet_next": {"test_entry": {"coordinator": coordinator}}}
+        mock_hass.data = {"econext": {"test_entry": {"coordinator": coordinator}}}
 
         # Activate Circuit 1 by setting its active param to 1
         coordinator.data["279"]["value"] = 1
@@ -118,7 +118,7 @@ class TestCircuitClimate:
     """Test CircuitClimate entity."""
 
     @pytest.fixture
-    def circuit_2_entity(self, coordinator: EconetNextCoordinator) -> CircuitClimate:
+    def circuit_2_entity(self, coordinator: EconextCoordinator) -> CircuitClimate:
         """Create Circuit 2 climate entity."""
         circuit = CIRCUITS[2]
         return CircuitClimate(
@@ -162,7 +162,7 @@ class TestCircuitClimate:
 
     def test_preset_modes(self, circuit_2_entity: CircuitClimate) -> None:
         """Test entity has correct preset modes."""
-        from custom_components.econet_next.climate import PRESET_SCHEDULE
+        from custom_components.econext.climate import PRESET_SCHEDULE
 
         assert circuit_2_entity._attr_preset_modes == [PRESET_ECO, PRESET_COMFORT, PRESET_SCHEDULE]
 
@@ -177,7 +177,7 @@ class TestCircuitClimate:
         # From fixture, Circuit2thermostatTemp = 19.93
         assert circuit_2_entity.current_temperature == 19.93
 
-    def test_current_temperature_invalid(self, coordinator: EconetNextCoordinator) -> None:
+    def test_current_temperature_invalid(self, coordinator: EconextCoordinator) -> None:
         """Test current temperature returns None for invalid value."""
         # Modify fixture to have invalid temp
         coordinator.data["327"]["value"] = 999.0
@@ -197,7 +197,7 @@ class TestCircuitClimate:
 
         assert entity.current_temperature is None
 
-    def test_hvac_mode_off(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_mode_off(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC mode when circuit is off."""
         # Set work state to 0 (off)
         coordinator.data["286"]["value"] = 0
@@ -217,7 +217,7 @@ class TestCircuitClimate:
 
         assert entity.hvac_mode == HVACMode.OFF
 
-    def test_hvac_mode_heat_eco(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_mode_heat_eco(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC mode when circuit is in eco mode with only heating enabled."""
         # Set work state to 1 (eco)
         coordinator.data["286"]["value"] = 1
@@ -239,7 +239,7 @@ class TestCircuitClimate:
 
         assert entity.hvac_mode == HVACMode.HEAT
 
-    def test_hvac_mode_heat_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_mode_heat_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC mode when circuit is in comfort mode with only heating enabled."""
         # Set work state to 2 (comfort)
         coordinator.data["286"]["value"] = 2
@@ -268,7 +268,7 @@ class TestCircuitClimate:
         # Fixture has both heating and cooling enabled, so should return HEAT_COOL
         assert circuit_2_entity.hvac_mode == HVACMode.HEAT_COOL
 
-    def test_preset_mode_eco(self, coordinator: EconetNextCoordinator) -> None:
+    def test_preset_mode_eco(self, coordinator: EconextCoordinator) -> None:
         """Test preset mode when in eco."""
         coordinator.data["286"]["value"] = CircuitWorkState.ECO
 
@@ -287,7 +287,7 @@ class TestCircuitClimate:
 
         assert entity.preset_mode == PRESET_ECO
 
-    def test_preset_mode_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    def test_preset_mode_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test preset mode when in comfort."""
         coordinator.data["286"]["value"] = CircuitWorkState.COMFORT
 
@@ -308,13 +308,13 @@ class TestCircuitClimate:
 
     def test_preset_mode_schedule(self, circuit_2_entity: CircuitClimate) -> None:
         """Test preset mode returns SCHEDULE when in schedule/auto mode."""
-        from custom_components.econet_next.climate import PRESET_SCHEDULE
+        from custom_components.econext.climate import PRESET_SCHEDULE
 
         # From fixture: Circuit2WorkState = 3 (schedule/auto)
         # Should return PRESET_SCHEDULE
         assert circuit_2_entity.preset_mode == PRESET_SCHEDULE
 
-    def test_target_temperature_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    def test_target_temperature_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test target temperature in comfort mode."""
         coordinator.data["286"]["value"] = CircuitWorkState.COMFORT
 
@@ -334,7 +334,7 @@ class TestCircuitClimate:
         # From fixture, Circuit2ComfortTemp = 21.0
         assert entity.target_temperature == 21.0
 
-    def test_target_temperature_eco(self, coordinator: EconetNextCoordinator) -> None:
+    def test_target_temperature_eco(self, coordinator: EconextCoordinator) -> None:
         """Test target temperature in eco mode."""
         coordinator.data["286"]["value"] = CircuitWorkState.ECO
 
@@ -360,7 +360,7 @@ class TestCircuitClimate:
         # Setpoint matches comfort, so should show comfort temperature
         assert circuit_2_entity.target_temperature == 21.0
 
-    def test_hvac_action_off(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_action_off(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC action when circuit is off."""
         # Set work state to 0 (off)
         coordinator.data["286"]["value"] = 0
@@ -380,7 +380,7 @@ class TestCircuitClimate:
 
         assert entity.hvac_action == HVACAction.OFF
 
-    def test_hvac_action_heating(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_action_heating(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC action when actively heating."""
         coordinator.data["286"]["value"] = CircuitWorkState.COMFORT
         coordinator.data["327"]["value"] = 18.0  # Current temp
@@ -402,7 +402,7 @@ class TestCircuitClimate:
         # 18.0 < 21.0 - 0.5 = true, so HEATING
         assert entity.hvac_action == HVACAction.HEATING
 
-    def test_hvac_action_idle(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_action_idle(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC action when at target temperature."""
         coordinator.data["286"]["value"] = CircuitWorkState.COMFORT
         coordinator.data["327"]["value"] = 21.0  # Current temp
@@ -426,7 +426,7 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_hvac_mode_off(
-        self, circuit_2_entity: CircuitClimate, coordinator: EconetNextCoordinator
+        self, circuit_2_entity: CircuitClimate, coordinator: EconextCoordinator
     ) -> None:
         """Test setting HVAC mode to OFF."""
         await circuit_2_entity.async_set_hvac_mode(HVACMode.OFF)
@@ -435,7 +435,7 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_hvac_mode_heat(
-        self, circuit_2_entity: CircuitClimate, coordinator: EconetNextCoordinator
+        self, circuit_2_entity: CircuitClimate, coordinator: EconextCoordinator
     ) -> None:
         """Test setting HVAC mode to HEAT updates heating/cooling enable bits."""
         # Circuit is already on in fixture, so should only update settings
@@ -458,7 +458,7 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_preset_mode_eco(
-        self, circuit_2_entity: CircuitClimate, coordinator: EconetNextCoordinator
+        self, circuit_2_entity: CircuitClimate, coordinator: EconextCoordinator
     ) -> None:
         """Test setting preset mode to ECO."""
         await circuit_2_entity.async_set_preset_mode(PRESET_ECO)
@@ -467,7 +467,7 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_preset_mode_comfort(
-        self, circuit_2_entity: CircuitClimate, coordinator: EconetNextCoordinator
+        self, circuit_2_entity: CircuitClimate, coordinator: EconextCoordinator
     ) -> None:
         """Test setting preset mode to COMFORT."""
         await circuit_2_entity.async_set_preset_mode(PRESET_COMFORT)
@@ -476,17 +476,17 @@ class TestCircuitClimate:
 
     @pytest.mark.asyncio
     async def test_set_preset_mode_schedule(
-        self, circuit_2_entity: CircuitClimate, coordinator: EconetNextCoordinator
+        self, circuit_2_entity: CircuitClimate, coordinator: EconextCoordinator
     ) -> None:
         """Test setting preset mode to SCHEDULE."""
-        from custom_components.econet_next.climate import PRESET_SCHEDULE
+        from custom_components.econext.climate import PRESET_SCHEDULE
 
         await circuit_2_entity.async_set_preset_mode(PRESET_SCHEDULE)
 
         coordinator.async_set_param.assert_called_once_with("286", CircuitWorkState.AUTO)
 
     @pytest.mark.asyncio
-    async def test_set_temperature_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    async def test_set_temperature_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test setting temperature in comfort mode with HEAT only."""
         coordinator.data["286"]["value"] = CircuitWorkState.COMFORT
         # Set to HEAT mode only (heating enabled, cooling disabled)
@@ -510,7 +510,7 @@ class TestCircuitClimate:
         coordinator.async_set_param.assert_called_once_with("288", 22.5)
 
     @pytest.mark.asyncio
-    async def test_set_temperature_eco(self, coordinator: EconetNextCoordinator) -> None:
+    async def test_set_temperature_eco(self, coordinator: EconextCoordinator) -> None:
         """Test setting temperature in eco mode with HEAT only."""
         coordinator.data["286"]["value"] = CircuitWorkState.ECO
         # Set to HEAT mode only (heating enabled, cooling disabled)
@@ -533,9 +533,9 @@ class TestCircuitClimate:
 
         coordinator.async_set_param.assert_called_once_with("289", 18.5)
 
-    def test_preset_mode_schedule_detects_eco(self, coordinator: EconetNextCoordinator) -> None:
+    def test_preset_mode_schedule_detects_eco(self, coordinator: EconextCoordinator) -> None:
         """Test that SCHEDULE mode updates _last_preset when setpoint matches ECO temp."""
-        from custom_components.econet_next.climate import PRESET_SCHEDULE
+        from custom_components.econext.climate import PRESET_SCHEDULE
 
         coordinator.data["286"]["value"] = CircuitWorkState.AUTO
         coordinator.data["289"]["value"] = 19.0  # Eco temp
@@ -560,9 +560,9 @@ class TestCircuitClimate:
         # But _last_preset should be updated to ECO for temperature adjustments
         assert entity._last_preset == PRESET_ECO
 
-    def test_preset_mode_schedule_detects_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    def test_preset_mode_schedule_detects_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test that SCHEDULE mode updates _last_preset when setpoint matches COMFORT temp."""
-        from custom_components.econet_next.climate import PRESET_SCHEDULE
+        from custom_components.econext.climate import PRESET_SCHEDULE
 
         coordinator.data["286"]["value"] = CircuitWorkState.AUTO
         coordinator.data["289"]["value"] = 19.0  # Eco temp
@@ -587,7 +587,7 @@ class TestCircuitClimate:
         # But _last_preset should be updated to COMFORT for temperature adjustments
         assert entity._last_preset == PRESET_COMFORT
 
-    def test_target_temperature_auto_shows_eco(self, coordinator: EconetNextCoordinator) -> None:
+    def test_target_temperature_auto_shows_eco(self, coordinator: EconextCoordinator) -> None:
         """Test target temperature in AUTO mode shows ECO temp when setpoint matches."""
         coordinator.data["286"]["value"] = CircuitWorkState.AUTO
         coordinator.data["289"]["value"] = 19.0  # Eco temp
@@ -609,7 +609,7 @@ class TestCircuitClimate:
 
         assert entity.target_temperature == 19.0
 
-    def test_target_temperature_auto_shows_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    def test_target_temperature_auto_shows_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test target temperature in AUTO mode shows COMFORT temp when setpoint matches."""
         coordinator.data["286"]["value"] = CircuitWorkState.AUTO
         coordinator.data["289"]["value"] = 19.0  # Eco temp
@@ -632,7 +632,7 @@ class TestCircuitClimate:
         assert entity.target_temperature == 22.0
 
     @pytest.mark.asyncio
-    async def test_set_temperature_auto_mode_eco(self, coordinator: EconetNextCoordinator) -> None:
+    async def test_set_temperature_auto_mode_eco(self, coordinator: EconextCoordinator) -> None:
         """Test setting temperature in AUTO mode when currently in ECO."""
         coordinator.data["286"]["value"] = CircuitWorkState.AUTO
         coordinator.data["289"]["value"] = 19.0  # Eco temp
@@ -660,7 +660,7 @@ class TestCircuitClimate:
         coordinator.async_set_param.assert_called_once_with("289", 20.0)
 
     @pytest.mark.asyncio
-    async def test_set_temperature_auto_mode_comfort(self, coordinator: EconetNextCoordinator) -> None:
+    async def test_set_temperature_auto_mode_comfort(self, coordinator: EconextCoordinator) -> None:
         """Test setting temperature in AUTO mode when currently in COMFORT."""
         coordinator.data["286"]["value"] = CircuitWorkState.AUTO
         coordinator.data["289"]["value"] = 19.0  # Eco temp
@@ -697,18 +697,18 @@ class TestCircuitClimate:
         device_info = circuit_2_entity.device_info
 
         # Should be part of circuit_2 device, not controller
-        assert ("econet_next", "2L7SDPN6KQ38CIH2401K01U_circuit_2") in device_info["identifiers"]
+        assert ("econext", "2L7SDPN6KQ38CIH2401K01U_circuit_2") in device_info["identifiers"]
         assert device_info["name"] == "UFH"
         assert device_info["manufacturer"] == "Plum"
         assert device_info["model"] == "Circuit 2"
         # Should have parent (controller)
-        assert device_info["via_device"] == ("econet_next", "2L7SDPN6KQ38CIH2401K01U")
+        assert device_info["via_device"] == ("econext", "2L7SDPN6KQ38CIH2401K01U")
 
 
 class TestOperatingModeHVACModes:
     """Test HVAC modes based on operating mode and circuit settings."""
 
-    def test_hvac_modes_winter_mode_heating_enabled(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_winter_mode_heating_enabled(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC modes in winter mode with heating enabled."""
         # Set operating mode to winter (2)
         coordinator.data["162"]["value"] = 2
@@ -736,7 +736,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.COOL not in modes
         assert HVACMode.HEAT_COOL not in modes
 
-    def test_hvac_modes_summer_mode_cooling_enabled(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_summer_mode_cooling_enabled(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC modes in summer mode with cooling enabled."""
         # Set operating mode to summer (1)
         coordinator.data["162"]["value"] = 1
@@ -764,7 +764,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.HEAT not in modes
         assert HVACMode.HEAT_COOL not in modes
 
-    def test_hvac_modes_auto_mode_both_enabled(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_auto_mode_both_enabled(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC modes in auto mode with both heating and cooling enabled."""
         # Set operating mode to auto (3)
         coordinator.data["162"]["value"] = 3
@@ -792,7 +792,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.HEAT in modes
         assert HVACMode.COOL in modes
 
-    def test_hvac_modes_auto_mode_only_heating(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_auto_mode_only_heating(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC modes in auto mode with only heating enabled."""
         # Set operating mode to auto (3)
         coordinator.data["162"]["value"] = 3
@@ -820,7 +820,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.COOL not in modes
         assert HVACMode.HEAT_COOL not in modes
 
-    def test_hvac_modes_auto_mode_only_cooling(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_auto_mode_only_cooling(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC modes in auto mode with only cooling enabled."""
         # Set operating mode to auto (3)
         coordinator.data["162"]["value"] = 3
@@ -848,7 +848,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.HEAT not in modes
         assert HVACMode.HEAT_COOL not in modes
 
-    def test_hvac_modes_winter_cooling_enabled_ignored(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_winter_cooling_enabled_ignored(self, coordinator: EconextCoordinator) -> None:
         """Test that cooling is not available in winter mode even if enabled in settings."""
         # Set operating mode to winter (2)
         coordinator.data["162"]["value"] = 2
@@ -877,7 +877,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.COOL not in modes
         assert HVACMode.HEAT_COOL not in modes
 
-    def test_hvac_modes_summer_heating_enabled_ignored(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_summer_heating_enabled_ignored(self, coordinator: EconextCoordinator) -> None:
         """Test that heating is not available in summer mode even if enabled in settings."""
         # Set operating mode to summer (1)
         coordinator.data["162"]["value"] = 1
@@ -906,7 +906,7 @@ class TestOperatingModeHVACModes:
         assert HVACMode.HEAT not in modes
         assert HVACMode.HEAT_COOL not in modes
 
-    def test_hvac_modes_no_operating_mode_defaults_auto(self, coordinator: EconetNextCoordinator) -> None:
+    def test_hvac_modes_no_operating_mode_defaults_auto(self, coordinator: EconextCoordinator) -> None:
         """Test that when operating mode is not available, system defaults to auto behavior."""
         # Remove operating mode parameter
         del coordinator.data["162"]

@@ -1,4 +1,4 @@
-"""Number platform for ecoNET Next integration."""
+"""Number platform for ecoNEXT integration."""
 
 import logging
 
@@ -18,10 +18,10 @@ from .const import (
     HEATPUMP_NUMBERS,
     HEATPUMP_SCHEDULE_NUMBERS,
     SILENT_MODE_SCHEDULE_NUMBERS,
-    EconetNumberEntityDescription,
+    EconextNumberEntityDescription,
 )
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,16 +31,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next number entities from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT number entities from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    entities: list[EconetNextNumber] = []
+    entities: list[EconextNumber] = []
 
     # Add controller number entities
     for description in CONTROLLER_NUMBERS:
         # Only add if parameter exists in data
         if coordinator.get_param(description.param_id) is not None:
-            entities.append(EconetNextNumber(coordinator, description))
+            entities.append(EconextNumber(coordinator, description))
         else:
             _LOGGER.debug(
                 "Skipping number %s - parameter %s not found",
@@ -55,7 +55,7 @@ async def async_setup_entry(
         if dhw_temp_value is not None and dhw_temp_value != 999.0:
             for description in DHW_NUMBERS:
                 if coordinator.get_param(description.param_id) is not None:
-                    entities.append(EconetNextNumber(coordinator, description))
+                    entities.append(EconextNumber(coordinator, description))
                 else:
                     _LOGGER.debug(
                         "Skipping DHW number %s - parameter %s not found",
@@ -66,7 +66,7 @@ async def async_setup_entry(
             # Add DHW schedule number entities
             for description in DHW_SCHEDULE_NUMBERS:
                 if coordinator.get_param(description.param_id) is not None:
-                    entities.append(EconetNextNumber(coordinator, description))
+                    entities.append(EconextNumber(coordinator, description))
                 else:
                     _LOGGER.debug(
                         "Skipping DHW schedule %s - parameter %s not found",
@@ -79,7 +79,7 @@ async def async_setup_entry(
     if heatpump_param is not None:
         for description in HEATPUMP_NUMBERS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextNumber(coordinator, description, device_id="heatpump"))
+                entities.append(EconextNumber(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump number %s - parameter %s not found",
@@ -90,7 +90,7 @@ async def async_setup_entry(
         # Add silent mode schedule number entities
         for description in SILENT_MODE_SCHEDULE_NUMBERS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextNumber(coordinator, description, device_id="heatpump"))
+                entities.append(EconextNumber(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping silent mode schedule %s - parameter %s not found",
@@ -101,7 +101,7 @@ async def async_setup_entry(
         # Add heat pump schedule number entities
         for description in HEATPUMP_SCHEDULE_NUMBERS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextNumber(coordinator, description, device_id="heatpump"))
+                entities.append(EconextNumber(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump schedule %s - parameter %s not found",
@@ -120,7 +120,7 @@ async def async_setup_entry(
                 param_id = _get_circuit_param_id(circuit, description.key, coordinator)
                 if param_id and coordinator.get_param(param_id) is not None:
                     # Create a copy of the description with the actual param_id
-                    circuit_desc = EconetNumberEntityDescription(
+                    circuit_desc = EconextNumberEntityDescription(
                         key=description.key,
                         param_id=param_id,
                         device_type=description.device_type,
@@ -133,7 +133,7 @@ async def async_setup_entry(
                         min_value_param_id=description.min_value_param_id,
                         max_value_param_id=description.max_value_param_id,
                     )
-                    entities.append(EconetNextNumber(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
+                    entities.append(EconextNumber(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
                 else:
                     _LOGGER.debug(
                         "Skipping Circuit %s number %s - parameter %s not found",
@@ -148,7 +148,7 @@ async def async_setup_entry(
                 param_id = _get_circuit_schedule_param_id(circuit, description.key)
                 if param_id and coordinator.get_param(param_id) is not None:
                     # Create a copy of the description with the actual param_id
-                    circuit_schedule_desc = EconetNumberEntityDescription(
+                    circuit_schedule_desc = EconextNumberEntityDescription(
                         key=description.key,
                         param_id=param_id,
                         device_type=description.device_type,
@@ -159,7 +159,7 @@ async def async_setup_entry(
                         native_step=description.native_step,
                     )
                     entities.append(
-                        EconetNextNumber(coordinator, circuit_schedule_desc, device_id=f"circuit_{circuit_num}")
+                        EconextNumber(coordinator, circuit_schedule_desc, device_id=f"circuit_{circuit_num}")
                     )
                 else:
                     _LOGGER.debug(
@@ -172,7 +172,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-def _get_circuit_param_id(circuit, number_key: str, coordinator: EconetNextCoordinator | None = None) -> str | None:
+def _get_circuit_param_id(circuit, number_key: str, coordinator: EconextCoordinator | None = None) -> str | None:
     """Get the parameter ID for a circuit number entity based on its key.
 
     For heating_curve, the param is determined by circuit type:
@@ -234,13 +234,13 @@ def _get_circuit_schedule_param_id(circuit, schedule_key: str) -> str | None:
     return mapping.get(schedule_key)
 
 
-class EconetNextNumber(EconetNextEntity, NumberEntity):
-    """Representation of an ecoNET Next number entity."""
+class EconextNumber(EconextEntity, NumberEntity):
+    """Representation of an ecoNEXT number entity."""
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetNumberEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextNumberEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the number entity."""

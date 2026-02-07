@@ -1,20 +1,20 @@
-"""Base entity for ecoNET Next integration."""
+"""Base entity for ecoNEXT integration."""
 
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, MANUFACTURER
-from .coordinator import EconetNextCoordinator
+from .coordinator import EconextCoordinator
 
 
-class EconetNextEntity(CoordinatorEntity[EconetNextCoordinator]):
-    """Base entity for ecoNET Next."""
+class EconextEntity(CoordinatorEntity[EconextCoordinator]):
+    """Base entity for ecoNEXT."""
 
     _attr_has_entity_name = True
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
+        coordinator: EconextCoordinator,
         param_id: str,
         device_id: str | None = None,
     ) -> None:

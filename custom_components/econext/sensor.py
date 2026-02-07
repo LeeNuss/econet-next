@@ -1,4 +1,4 @@
-"""Sensor platform for ecoNET Next integration."""
+"""Sensor platform for ecoNEXT integration."""
 
 import logging
 
@@ -15,13 +15,13 @@ from .const import (
     DHW_SCHEDULE_DIAGNOSTIC_SENSORS,
     DHW_SENSORS,
     DOMAIN,
-    EconetSensorEntityDescription,
+    EconextSensorEntityDescription,
     HEATPUMP_SCHEDULE_DIAGNOSTIC_SENSORS,
     HEATPUMP_SENSORS,
     SILENT_MODE_SCHEDULE_DIAGNOSTIC_SENSORS,
 )
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,16 +74,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next sensors from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT sensors from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    entities: list[EconetNextSensor] = []
+    entities: list[EconextSensor] = []
 
     # Add controller sensors
     for description in CONTROLLER_SENSORS:
         # Only add if parameter exists in data
         if coordinator.get_param(description.param_id) is not None:
-            entities.append(EconetNextSensor(coordinator, description))
+            entities.append(EconextSensor(coordinator, description))
         else:
             _LOGGER.debug(
                 "Skipping sensor %s - parameter %s not found",
@@ -99,7 +99,7 @@ async def async_setup_entry(
         if dhw_temp_value is not None and dhw_temp_value != 999.0:
             for description in DHW_SENSORS:
                 if coordinator.get_param(description.param_id) is not None:
-                    entities.append(EconetNextSensor(coordinator, description))
+                    entities.append(EconextSensor(coordinator, description))
                 else:
                     _LOGGER.debug(
                         "Skipping DHW sensor %s - parameter %s not found",
@@ -114,7 +114,7 @@ async def async_setup_entry(
                     coordinator.get_param(description.param_id_am) is not None
                     and coordinator.get_param(description.param_id_pm) is not None
                 ):
-                    entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description))
+                    entities.append(EconextScheduleDiagnosticSensor(coordinator, description))
                 else:
                     _LOGGER.debug(
                         "Skipping DHW schedule diagnostic sensor %s - parameters %s/%s not found",
@@ -129,7 +129,7 @@ async def async_setup_entry(
     if heatpump_param is not None:
         for description in HEATPUMP_SENSORS:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextSensor(coordinator, description, device_id="heatpump"))
+                entities.append(EconextSensor(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump sensor %s - parameter %s not found",
@@ -144,7 +144,7 @@ async def async_setup_entry(
                 coordinator.get_param(description.param_id_am) is not None
                 and coordinator.get_param(description.param_id_pm) is not None
             ):
-                entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description, device_id="heatpump"))
+                entities.append(EconextScheduleDiagnosticSensor(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping silent mode schedule diagnostic sensor %s - parameters %s/%s not found",
@@ -160,7 +160,7 @@ async def async_setup_entry(
                 coordinator.get_param(description.param_id_am) is not None
                 and coordinator.get_param(description.param_id_pm) is not None
             ):
-                entities.append(EconetNextScheduleDiagnosticSensor(coordinator, description, device_id="heatpump"))
+                entities.append(EconextScheduleDiagnosticSensor(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump schedule diagnostic sensor %s - parameters %s/%s not found",
@@ -180,7 +180,7 @@ async def async_setup_entry(
                 param_id = _get_circuit_param_id(circuit, description.key)
                 if param_id and coordinator.get_param(param_id) is not None:
                     # Create a copy of the description with the actual param_id and device_id
-                    circuit_desc = EconetSensorEntityDescription(
+                    circuit_desc = EconextSensorEntityDescription(
                         key=description.key,
                         param_id=param_id,
                         device_type=description.device_type,
@@ -203,7 +203,7 @@ async def async_setup_entry(
                             and coordinator.get_param(circuit.room_temp_setpoint_param) is not None
                         ):
                             entities.append(
-                                EconetNextActiveScheduleModeSensor(
+                                EconextActiveScheduleModeSensor(
                                     coordinator,
                                     circuit_desc,
                                     circuit.eco_param,
@@ -213,7 +213,7 @@ async def async_setup_entry(
                                 )
                             )
                     else:
-                        entities.append(EconetNextSensor(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
+                        entities.append(EconextSensor(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
                 else:
                     _LOGGER.debug(
                         "Skipping Circuit %s sensor %s - parameter %s not found",
@@ -233,7 +233,7 @@ async def async_setup_entry(
                     and coordinator.get_param(param_id_pm) is not None
                 ):
                     # Create a copy of the description with the actual param IDs
-                    circuit_schedule_desc = EconetSensorEntityDescription(
+                    circuit_schedule_desc = EconextSensorEntityDescription(
                         key=description.key,
                         param_id=param_id_am,  # Use AM as primary
                         param_id_am=param_id_am,
@@ -243,7 +243,7 @@ async def async_setup_entry(
                         entity_category=description.entity_category,
                     )
                     entities.append(
-                        EconetNextScheduleDiagnosticSensor(
+                        EconextScheduleDiagnosticSensor(
                             coordinator, circuit_schedule_desc, device_id=f"circuit_{circuit_num}"
                         )
                     )
@@ -284,13 +284,13 @@ def _get_circuit_schedule_diagnostic_params(circuit, sensor_key: str) -> tuple[s
     return mapping.get(sensor_key, (None, None))
 
 
-class EconetNextSensor(EconetNextEntity, SensorEntity):
-    """Representation of an ecoNET Next sensor."""
+class EconextSensor(EconextEntity, SensorEntity):
+    """Representation of an ecoNEXT sensor."""
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetSensorEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextSensorEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the sensor."""
@@ -348,7 +348,7 @@ class EconetNextSensor(EconetNextEntity, SensorEntity):
         return True
 
 
-class EconetNextScheduleDiagnosticSensor(EconetNextSensor):
+class EconextScheduleDiagnosticSensor(EconextSensor):
     """Sensor that decodes schedule bitfields into human-readable format.
 
     This sensor combines both AM and PM schedule periods into a single daily view.
@@ -356,8 +356,8 @@ class EconetNextScheduleDiagnosticSensor(EconetNextSensor):
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetSensorEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextSensorEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the diagnostic sensor."""
@@ -397,7 +397,7 @@ class EconetNextScheduleDiagnosticSensor(EconetNextSensor):
             return None
 
 
-class EconetNextActiveScheduleModeSensor(EconetNextSensor):
+class EconextActiveScheduleModeSensor(EconextSensor):
     """Sensor that shows the active schedule mode (eco/comfort) for a circuit.
 
     Computes the active mode by comparing the room temperature setpoint
@@ -406,8 +406,8 @@ class EconetNextActiveScheduleModeSensor(EconetNextSensor):
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetSensorEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextSensorEntityDescription,
         eco_param_id: str,
         comfort_param_id: str,
         setpoint_param_id: str,

@@ -1,4 +1,4 @@
-"""Constants for the ecoNET Next integration."""
+"""Constants for the ecoNEXT integration."""
 
 from dataclasses import dataclass
 from enum import StrEnum
@@ -11,7 +11,7 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 
-DOMAIN = "econet_next"
+DOMAIN = "econext"
 
 # Platforms to set up
 PLATFORMS: list[str] = [
@@ -139,8 +139,8 @@ class DeviceType(StrEnum):
 
 
 @dataclass(frozen=True)
-class EconetSensorEntityDescription:
-    """Describes an Econet sensor entity."""
+class EconextSensorEntityDescription:
+    """Describes an Econext sensor entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -158,8 +158,8 @@ class EconetSensorEntityDescription:
 
 
 @dataclass(frozen=True)
-class EconetNumberEntityDescription:
-    """Describes an Econet number entity."""
+class EconextNumberEntityDescription:
+    """Describes an Econext number entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -175,8 +175,8 @@ class EconetNumberEntityDescription:
 
 
 @dataclass(frozen=True)
-class EconetSelectEntityDescription:
-    """Describes an Econet select entity."""
+class EconextSelectEntityDescription:
+    """Describes an Econext select entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -189,8 +189,8 @@ class EconetSelectEntityDescription:
 
 
 @dataclass(frozen=True)
-class EconetSwitchEntityDescription:
-    """Describes an Econet switch entity."""
+class EconextSwitchEntityDescription:
+    """Describes an Econext switch entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -202,8 +202,8 @@ class EconetSwitchEntityDescription:
 
 
 @dataclass(frozen=True)
-class EconetButtonEntityDescription:
-    """Describes an Econet button entity."""
+class EconextButtonEntityDescription:
+    """Describes an Econext button entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API
@@ -213,8 +213,8 @@ class EconetButtonEntityDescription:
 
 
 @dataclass(frozen=True)
-class EconetBinarySensorEntityDescription:
-    """Describes an Econet binary sensor entity."""
+class EconextBinarySensorEntityDescription:
+    """Describes an Econext binary sensor entity."""
 
     key: str  # Translation key
     param_id: str  # Parameter ID from API (bitfield parameter)
@@ -226,8 +226,8 @@ class EconetBinarySensorEntityDescription:
 
 
 # Alarm binary sensors - read bits from alarm bitfield parameters
-ALARM_BINARY_SENSORS: tuple[EconetBinarySensorEntityDescription, ...] = (
-    EconetBinarySensorEntityDescription(
+ALARM_BINARY_SENSORS: tuple[EconextBinarySensorEntityDescription, ...] = (
+    EconextBinarySensorEntityDescription(
         key="alarm_antifreeze_active",
         param_id="1042",  # AlarmBits_1
         bit_position=6,  # bit 6 = value 64
@@ -235,7 +235,7 @@ ALARM_BINARY_SENSORS: tuple[EconetBinarySensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:snowflake-alert",
     ),
-    EconetBinarySensorEntityDescription(
+    EconextBinarySensorEntityDescription(
         key="alarm_water_flow_failure",
         param_id="1044",  # AlarmBits_3
         bit_position=16,  # bit 16 = value 65536
@@ -247,39 +247,39 @@ ALARM_BINARY_SENSORS: tuple[EconetBinarySensorEntityDescription, ...] = (
 
 
 # Controller sensors - read only
-CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
+CONTROLLER_SENSORS: tuple[EconextSensorEntityDescription, ...] = (
     # System information (diagnostic)
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="software_version",
         param_id="0",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:information-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="hardware_version",
         param_id="1",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:information-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="uid",
         param_id="10",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:identifier",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="device_name",
         param_id="374",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:label-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="compilation_date",
         param_id="13",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:calendar",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="reset_counter",
         param_id="14",
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -287,7 +287,7 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:counter",
     ),
     # System state sensors
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="outdoor_temperature",
         param_id="68",
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -295,7 +295,7 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         precision=1,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="flap_valve_state",
         param_id="83",
         device_class=SensorDeviceClass.ENUM,
@@ -304,13 +304,13 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         value_map=FLAP_VALVE_STATE_MAPPING,
     ),
     # Network info (diagnostic)
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="wifi_ssid",
         param_id="377",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:wifi",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="wifi_signal_strength",
         param_id="380",
         state_class=SensorStateClass.MEASUREMENT,
@@ -318,26 +318,26 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:wifi-strength-3",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="wifi_ip_address",
         param_id="860",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:ip-network",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="lan_ip_address",
         param_id="863",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:ip-network",
     ),
     # I/O state sensors (diagnostic)
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="outputs",
         param_id="81",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:export",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="inputs",
         param_id="82",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -345,7 +345,7 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
     ),
     # Work state sensors (diagnostic)
     # Note: work_state_2 (param 162) is exposed as operating_mode select entity
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="active_operating_mode",
         param_id="161",
         device_class=SensorDeviceClass.ENUM,
@@ -354,44 +354,44 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         options=ACTIVE_MODE_OPTIONS,
         value_map=ACTIVE_MODE_MAPPING,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="work_state_3",
         param_id="163",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:state-machine",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="work_state_4",
         param_id="164",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:state-machine",
     ),
     # Alarm sensors (diagnostic)
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="alarm_bits_1",
         param_id="1042",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:alert-circle-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="alarm_bits_2",
         param_id="1043",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:alert-circle-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="alarm_bits_3",
         param_id="1044",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:alert-circle-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="alarm_bits_4",
         param_id="1045",
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:alert-circle-outline",
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="alarm_bits_5",
         param_id="1046",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -401,9 +401,9 @@ CONTROLLER_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
 
 
 # Controller number entities - editable global settings
-CONTROLLER_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
+CONTROLLER_NUMBERS: tuple[EconextNumberEntityDescription, ...] = (
     # Summer mode settings - limits are automatically read from allParams (minv/maxv/minvDP/maxvDP)
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="summer_mode_on",
         param_id="702",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -411,7 +411,7 @@ CONTROLLER_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_min_value=22,  # Fallback only
         native_max_value=30,  # Fallback only
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="summer_mode_off",
         param_id="703",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -423,8 +423,8 @@ CONTROLLER_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
 
 
 # Controller select entities - editable mode settings
-CONTROLLER_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
-    EconetSelectEntityDescription(
+CONTROLLER_SELECTS: tuple[EconextSelectEntityDescription, ...] = (
+    EconextSelectEntityDescription(
         key="operating_mode",
         param_id="162",
         icon="mdi:sun-snowflake-variant",
@@ -436,9 +436,9 @@ CONTROLLER_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
 
 
 # Controller switch entities - boolean settings
-CONTROLLER_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+CONTROLLER_SWITCHES: tuple[EconextSwitchEntityDescription, ...] = (
     # Cooling support toggle - enables cooling mode in addition to heating
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="cooling_support",
         param_id="485",
         icon="mdi:snowflake",
@@ -451,8 +451,8 @@ CONTROLLER_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
 # ============================================================================
 
 # Heat pump sensors - read only
-HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
-    EconetSensorEntityDescription(
+HEATPUMP_SENSORS: tuple[EconextSensorEntityDescription, ...] = (
+    EconextSensorEntityDescription(
         key="system_pressure",
         param_id="1208",
         device_type=DeviceType.HEATPUMP,
@@ -462,7 +462,7 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:gauge",
         precision=1,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="pump_speed",
         param_id="1209",
         device_type=DeviceType.HEATPUMP,
@@ -471,7 +471,7 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:pump",
         precision=0,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="compressor_frequency",
         param_id="1365",
         device_type=DeviceType.HEATPUMP,
@@ -480,7 +480,7 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:sine-wave",
         precision=0,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="water_flow_rate",
         param_id="612",
         device_type=DeviceType.HEATPUMP,
@@ -489,7 +489,7 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:water-pump",
         precision=1,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="fan_speed",
         param_id="1366",
         device_type=DeviceType.HEATPUMP,
@@ -498,7 +498,7 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:fan",
         precision=1,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="target_temperature",
         param_id="523",
         device_type=DeviceType.HEATPUMP,
@@ -512,8 +512,8 @@ HEATPUMP_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
 
 
 # Heat pump number entities - adjustable values
-HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
-    EconetNumberEntityDescription(
+HEATPUMP_NUMBERS: tuple[EconextNumberEntityDescription, ...] = (
+    EconextNumberEntityDescription(
         key="purge_pwm_speed",
         param_id="1370",
         device_type=DeviceType.HEATPUMP,
@@ -523,7 +523,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=100,
         native_step=1,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="standby_pump_speed",
         param_id="1439",
         device_type=DeviceType.HEATPUMP,
@@ -533,7 +533,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=100,
         native_step=1,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="min_pump_speed",
         param_id="1440",
         device_type=DeviceType.HEATPUMP,
@@ -543,7 +543,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=100,
         native_step=1,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="max_pump_speed",
         param_id="1441",
         device_type=DeviceType.HEATPUMP,
@@ -553,7 +553,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=100,
         native_step=1,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="fan_speed_0",
         param_id="1443",
         device_type=DeviceType.HEATPUMP,
@@ -563,7 +563,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=1000,
         native_step=10,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="fan_speed_1",
         param_id="1444",
         device_type=DeviceType.HEATPUMP,
@@ -573,7 +573,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=1000,
         native_step=10,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="fan_speed_2",
         param_id="1445",
         device_type=DeviceType.HEATPUMP,
@@ -583,7 +583,7 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=1000,
         native_step=10,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="fan_speed_3",
         param_id="1446",
         device_type=DeviceType.HEATPUMP,
@@ -597,8 +597,8 @@ HEATPUMP_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
 
 
 # Heat pump select entities - editable mode settings
-HEATPUMP_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
-    EconetSelectEntityDescription(
+HEATPUMP_SELECTS: tuple[EconextSelectEntityDescription, ...] = (
+    EconextSelectEntityDescription(
         key="work_mode",
         param_id="1133",
         device_type=DeviceType.HEATPUMP,
@@ -607,7 +607,7 @@ HEATPUMP_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         value_map=HEATPUMP_WORK_MODE_MAPPING,
         reverse_map=HEATPUMP_WORK_MODE_REVERSE,
     ),
-    EconetSelectEntityDescription(
+    EconextSelectEntityDescription(
         key="silent_mode_level",
         param_id="1385",
         device_type=DeviceType.HEATPUMP,
@@ -616,7 +616,7 @@ HEATPUMP_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         value_map=SILENT_MODE_LEVEL_MAPPING,
         reverse_map=SILENT_MODE_LEVEL_REVERSE,
     ),
-    EconetSelectEntityDescription(
+    EconextSelectEntityDescription(
         key="silent_mode_schedule",
         param_id="1386",
         device_type=DeviceType.HEATPUMP,
@@ -629,8 +629,8 @@ HEATPUMP_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
 
 
 # Heat pump button entities - actions
-HEATPUMP_BUTTONS: tuple[EconetButtonEntityDescription, ...] = (
-    EconetButtonEntityDescription(
+HEATPUMP_BUTTONS: tuple[EconextButtonEntityDescription, ...] = (
+    EconextButtonEntityDescription(
         key="reboot",
         param_id="1369",
         device_type=DeviceType.HEATPUMP,
@@ -641,9 +641,9 @@ HEATPUMP_BUTTONS: tuple[EconetButtonEntityDescription, ...] = (
 
 
 # Heat pump switch entities
-HEATPUMP_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+HEATPUMP_SWITCHES: tuple[EconextSwitchEntityDescription, ...] = (
     # Manual defrost - bit 0 of AXEN_REGISTER_2103_RW
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="manual_defrost",
         param_id="1271",
         device_type=DeviceType.HEATPUMP,
@@ -653,7 +653,7 @@ HEATPUMP_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         invert_logic=False,  # 1 = enabled, 0 = disabled
     ),
     # Purge function - bit 14 of AXEN_REGISTER_2103_RW
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="purge_enable",
         param_id="1271",
         device_type=DeviceType.HEATPUMP,
@@ -677,8 +677,8 @@ _SILENT_MODE_SCHEDULE_DAYS = [
     ("saturday", 1399, 1400),
 ]
 
-SILENT_MODE_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
-    EconetNumberEntityDescription(
+SILENT_MODE_SCHEDULE_NUMBERS: tuple[EconextNumberEntityDescription, ...] = tuple(
+    EconextNumberEntityDescription(
         key=f"silent_mode_schedule_{day}_{period}",
         param_id=str(param_id),
         device_type=DeviceType.HEATPUMP,
@@ -694,8 +694,8 @@ SILENT_MODE_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
 
 
 # Silent mode schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
-SILENT_MODE_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
-    EconetSensorEntityDescription(
+SILENT_MODE_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconextSensorEntityDescription, ...] = tuple(
+    EconextSensorEntityDescription(
         key=f"silent_mode_schedule_{day}_decoded",
         param_id=str(am_id),  # Use AM param as primary param_id
         param_id_am=str(am_id),
@@ -720,8 +720,8 @@ _HEATPUMP_SCHEDULE_DAYS = [
     ("saturday", 938, 939),
 ]
 
-HEATPUMP_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
-    EconetNumberEntityDescription(
+HEATPUMP_SCHEDULE_NUMBERS: tuple[EconextNumberEntityDescription, ...] = tuple(
+    EconextNumberEntityDescription(
         key=f"heatpump_schedule_{day}_{period}",
         param_id=str(param_id),
         device_type=DeviceType.HEATPUMP,
@@ -737,8 +737,8 @@ HEATPUMP_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
 
 
 # Heat pump schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
-HEATPUMP_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
-    EconetSensorEntityDescription(
+HEATPUMP_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconextSensorEntityDescription, ...] = tuple(
+    EconextSensorEntityDescription(
         key=f"heatpump_schedule_{day}_decoded",
         param_id=str(am_id),  # Use AM param as primary param_id
         param_id_am=str(am_id),
@@ -756,9 +756,9 @@ HEATPUMP_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] 
 # ============================================================================
 
 # DHW sensors - read only
-DHW_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
+DHW_SENSORS: tuple[EconextSensorEntityDescription, ...] = (
     # Temperature sensors
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="temperature",
         param_id="61",
         device_type=DeviceType.DHW,
@@ -768,7 +768,7 @@ DHW_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         icon="mdi:thermometer",
         precision=1,
     ),
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="setpoint_calculated",
         param_id="134",
         device_type=DeviceType.DHW,
@@ -779,7 +779,7 @@ DHW_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         precision=0,
     ),
     # Boost time remaining
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="boost_time_remaining",
         param_id="1431",
         device_type=DeviceType.DHW,
@@ -793,9 +793,9 @@ DHW_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
 
 
 # DHW number entities - editable settings
-DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
+DHW_NUMBERS: tuple[EconextNumberEntityDescription, ...] = (
     # DHW target temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="target_temperature",
         param_id="103",
         device_type=DeviceType.DHW,
@@ -805,7 +805,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=65,
     ),
     # DHW hysteresis
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="hysteresis",
         param_id="104",
         device_type=DeviceType.DHW,
@@ -815,7 +815,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=18,
     ),
     # DHW max temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="max_temperature",
         param_id="108",
         device_type=DeviceType.DHW,
@@ -825,7 +825,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=75,
     ),
     # DHW max temp hysteresis
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="max_temp_hysteresis",
         param_id="112",
         device_type=DeviceType.DHW,
@@ -835,7 +835,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=10,
     ),
     # DHW load time
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="load_time",
         param_id="113",
         device_type=DeviceType.DHW,
@@ -844,7 +844,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=50,
     ),
     # Legionella settings
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="legionella_temperature",
         param_id="136",
         device_type=DeviceType.DHW,
@@ -853,7 +853,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_min_value=60,
         native_max_value=80,
     ),
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="legionella_hour",
         param_id="138",
         device_type=DeviceType.DHW,
@@ -862,7 +862,7 @@ DHW_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=23,
     ),
     # DHW temperature correction
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="temperature_correction",
         param_id="481",
         device_type=DeviceType.DHW,
@@ -886,8 +886,8 @@ _DHW_SCHEDULE_DAYS = [
     ("saturday", 132, 133),
 ]
 
-DHW_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
-    EconetNumberEntityDescription(
+DHW_SCHEDULE_NUMBERS: tuple[EconextNumberEntityDescription, ...] = tuple(
+    EconextNumberEntityDescription(
         key=f"hdw_schedule_{day}_{period}",
         param_id=str(param_id),
         device_type=DeviceType.DHW,
@@ -903,8 +903,8 @@ DHW_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
 
 
 # DHW schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
-DHW_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
-    EconetSensorEntityDescription(
+DHW_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconextSensorEntityDescription, ...] = tuple(
+    EconextSensorEntityDescription(
         key=f"hdw_schedule_{day}_decoded",
         param_id=str(am_id),  # Use AM param as primary param_id
         param_id_am=str(am_id),
@@ -918,16 +918,16 @@ DHW_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tup
 
 
 # DHW switch entities
-DHW_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+DHW_SWITCHES: tuple[EconextSwitchEntityDescription, ...] = (
     # Boost - start/stop immediate DHW heating
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="boost",
         param_id="115",
         device_type=DeviceType.DHW,
         icon="mdi:rocket-launch",
     ),
     # Legionella protection
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="legionella_start",
         param_id="135",
         device_type=DeviceType.DHW,
@@ -937,9 +937,9 @@ DHW_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
 
 
 # DHW select entities
-DHW_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
+DHW_SELECTS: tuple[EconextSelectEntityDescription, ...] = (
     # DHW mode (off/on/schedule)
-    EconetSelectEntityDescription(
+    EconextSelectEntityDescription(
         key="mode",
         param_id="119",
         device_type=DeviceType.DHW,
@@ -949,7 +949,7 @@ DHW_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
         reverse_map=DHW_MODE_REVERSE,
     ),
     # Legionella protection day
-    EconetSelectEntityDescription(
+    EconextSelectEntityDescription(
         key="legionella_day",
         param_id="137",
         device_type=DeviceType.DHW,
@@ -981,9 +981,9 @@ CIRCUIT_TYPE_REVERSE = {value: key for key, value in CIRCUIT_TYPE_MAPPING.items(
 # Circuit-specific param IDs are defined in climate.py CIRCUITS dict
 
 # Circuit temperature sensors (per circuit)
-CIRCUIT_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
+CIRCUIT_SENSORS: tuple[EconextSensorEntityDescription, ...] = (
     # Room thermostat temperature
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="thermostat_temp",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -994,7 +994,7 @@ CIRCUIT_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         precision=1,
     ),
     # Calculated target temperature
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="calc_temp",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1005,7 +1005,7 @@ CIRCUIT_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         precision=1,
     ),
     # Room temperature setpoint
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="room_temp_setpoint",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1016,7 +1016,7 @@ CIRCUIT_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
         precision=1,
     ),
     # Active preset mode (eco/comfort) - computed by comparing setpoint to eco/comfort temps
-    EconetSensorEntityDescription(
+    EconextSensorEntityDescription(
         key="active_preset_mode",
         param_id="",  # Set dynamically - uses room_temp_setpoint as primary param
         device_type=DeviceType.CIRCUIT,
@@ -1029,9 +1029,9 @@ CIRCUIT_SENSORS: tuple[EconetSensorEntityDescription, ...] = (
 
 
 # Circuit number entities - editable settings
-CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
+CIRCUIT_NUMBERS: tuple[EconextNumberEntityDescription, ...] = (
     # Comfort temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="comfort_temp",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1042,7 +1042,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_step=0.5,
     ),
     # Eco temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="eco_temp",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1053,7 +1053,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_step=0.5,
     ),
     # Temperature hysteresis
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="hysteresis",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1064,7 +1064,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_step=0.5,
     ),
     # Max radiator temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="max_temp_radiator",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1074,7 +1074,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=75,
     ),
     # Max heating temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="max_temp_heat",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1084,7 +1084,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=55,
     ),
     # Fixed temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="fixed_temp",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1094,7 +1094,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=75,
     ),
     # Temperature reduction
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="temp_reduction",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1104,7 +1104,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=20,
     ),
     # Heating curve - dynamically uses radiator, floor, or fan coil param based on circuit type
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="heating_curve",
         param_id="",  # Set dynamically per circuit type
         device_type=DeviceType.CIRCUIT,
@@ -1114,7 +1114,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_step=0.1,
     ),
     # Curve shift
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="curve_shift",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1123,7 +1123,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=20,
     ),
     # Curve multiplier
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="curve_multiplier",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1132,7 +1132,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=20,
     ),
     # Room temperature correction
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="room_temp_correction",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1142,7 +1142,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=10,
     ),
     # Cooling min setpoint temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="min_setpoint_cooling",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1152,7 +1152,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=30,
     ),
     # Cooling max setpoint temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="max_setpoint_cooling",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1162,7 +1162,7 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
         native_max_value=30,
     ),
     # Cooling fixed temperature
-    EconetNumberEntityDescription(
+    EconextNumberEntityDescription(
         key="cooling_fixed_temp",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1175,9 +1175,9 @@ CIRCUIT_NUMBERS: tuple[EconetNumberEntityDescription, ...] = (
 
 
 # Circuit select entities - editable mode selections
-CIRCUIT_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
+CIRCUIT_SELECTS: tuple[EconextSelectEntityDescription, ...] = (
     # Circuit type (radiator, UFH, or fan coil)
-    EconetSelectEntityDescription(
+    EconextSelectEntityDescription(
         key="circuit_type",
         param_id="",  # Set dynamically per circuit (CircuitXTypeSettings)
         device_type=DeviceType.CIRCUIT,
@@ -1190,9 +1190,9 @@ CIRCUIT_SELECTS: tuple[EconetSelectEntityDescription, ...] = (
 
 
 # Circuit switch entities - bitmap-based settings
-CIRCUIT_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
+CIRCUIT_SWITCHES: tuple[EconextSwitchEntityDescription, ...] = (
     # Heating enable (bit 20, inverted: 0=on, 1=off)
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="heating_enable",
         param_id="",  # Set dynamically per circuit (CircuitXSettings)
         device_type=DeviceType.CIRCUIT,
@@ -1202,7 +1202,7 @@ CIRCUIT_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         invert_logic=True,  # Bit 0 = heating ON
     ),
     # Cooling enable (bit 17)
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="cooling_enable",
         param_id="",  # Set dynamically per circuit (CircuitXSettings)
         device_type=DeviceType.CIRCUIT,
@@ -1212,7 +1212,7 @@ CIRCUIT_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         invert_logic=False,  # Bit 1 = cooling ON
     ),
     # Pump only mode (bit 13)
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="pump_only_mode",
         param_id="",  # Set dynamically per circuit (CircuitXSettings)
         device_type=DeviceType.CIRCUIT,
@@ -1222,7 +1222,7 @@ CIRCUIT_SWITCHES: tuple[EconetSwitchEntityDescription, ...] = (
         invert_logic=False,  # Bit 1 = pump only ON
     ),
     # Pump blockage (bit 10)
-    EconetSwitchEntityDescription(
+    EconextSwitchEntityDescription(
         key="pump_blockage",
         param_id="",  # Set dynamically per circuit (CircuitXSettings)
         device_type=DeviceType.CIRCUIT,
@@ -1246,8 +1246,8 @@ _CIRCUIT_SCHEDULE_DAYS = [
     ("saturday", "am", "pm"),
 ]
 
-CIRCUIT_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
-    EconetNumberEntityDescription(
+CIRCUIT_SCHEDULE_NUMBERS: tuple[EconextNumberEntityDescription, ...] = tuple(
+    EconextNumberEntityDescription(
         key=f"schedule_{day}_{period}",
         param_id="",  # Set dynamically per circuit
         device_type=DeviceType.CIRCUIT,
@@ -1264,8 +1264,8 @@ CIRCUIT_SCHEDULE_NUMBERS: tuple[EconetNumberEntityDescription, ...] = tuple(
 
 # Circuit schedule diagnostic sensors - decoded time ranges (one per day, combines AM/PM)
 # These are template descriptions - param_id_am and param_id_pm are set dynamically per circuit
-CIRCUIT_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconetSensorEntityDescription, ...] = tuple(
-    EconetSensorEntityDescription(
+CIRCUIT_SCHEDULE_DIAGNOSTIC_SENSORS: tuple[EconextSensorEntityDescription, ...] = tuple(
+    EconextSensorEntityDescription(
         key=f"schedule_{day}_decoded",
         param_id="",  # Set dynamically per circuit
         param_id_am="",  # Set dynamically per circuit

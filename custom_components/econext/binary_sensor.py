@@ -1,4 +1,4 @@
-"""Binary sensor platform for ecoNET Next integration."""
+"""Binary sensor platform for ecoNEXT integration."""
 
 import logging
 
@@ -10,10 +10,10 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import (
     ALARM_BINARY_SENSORS,
     DOMAIN,
-    EconetBinarySensorEntityDescription,
+    EconextBinarySensorEntityDescription,
 )
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,16 +23,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next binary sensor entities from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT binary sensor entities from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    entities: list[EconetNextBinarySensor] = []
+    entities: list[EconextBinarySensor] = []
 
     # Add alarm binary sensor entities
     for description in ALARM_BINARY_SENSORS:
         # Only add if parameter exists in data
         if coordinator.get_param(description.param_id) is not None:
-            entities.append(EconetNextBinarySensor(coordinator, description))
+            entities.append(EconextBinarySensor(coordinator, description))
         else:
             _LOGGER.debug(
                 "Skipping binary sensor %s - parameter %s not found",
@@ -43,13 +43,13 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EconetNextBinarySensor(EconetNextEntity, BinarySensorEntity):
-    """Representation of an ecoNET Next binary sensor entity."""
+class EconextBinarySensor(EconextEntity, BinarySensorEntity):
+    """Representation of an ecoNEXT binary sensor entity."""
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetBinarySensorEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextBinarySensorEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the binary sensor entity."""

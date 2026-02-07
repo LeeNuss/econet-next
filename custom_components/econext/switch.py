@@ -1,4 +1,4 @@
-"""Switch platform for ecoNET Next integration."""
+"""Switch platform for ecoNEXT integration."""
 
 import logging
 
@@ -13,11 +13,11 @@ from .const import (
     CONTROLLER_SWITCHES,
     DHW_SWITCHES,
     DOMAIN,
-    EconetSwitchEntityDescription,
+    EconextSwitchEntityDescription,
     HEATPUMP_SWITCHES,
 )
-from .coordinator import EconetNextCoordinator
-from .entity import EconetNextEntity
+from .coordinator import EconextCoordinator
+from .entity import EconextEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,16 +27,16 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up ecoNET Next switch entities from a config entry."""
-    coordinator: EconetNextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    """Set up ecoNEXT switch entities from a config entry."""
+    coordinator: EconextCoordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
 
-    entities: list[EconetNextSwitch] = []
+    entities: list[EconextSwitch] = []
 
     # Add controller switch entities
     for description in CONTROLLER_SWITCHES:
         # Only add if parameter exists in data
         if coordinator.get_param(description.param_id) is not None:
-            entities.append(EconetNextSwitch(coordinator, description))
+            entities.append(EconextSwitch(coordinator, description))
         else:
             _LOGGER.debug(
                 "Skipping switch %s - parameter %s not found",
@@ -51,7 +51,7 @@ async def async_setup_entry(
         if dhw_temp_value is not None and dhw_temp_value != 999.0:
             for description in DHW_SWITCHES:
                 if coordinator.get_param(description.param_id) is not None:
-                    entities.append(EconetNextSwitch(coordinator, description))
+                    entities.append(EconextSwitch(coordinator, description))
                 else:
                     _LOGGER.debug(
                         "Skipping DHW switch %s - parameter %s not found",
@@ -64,7 +64,7 @@ async def async_setup_entry(
     if heatpump_param is not None:
         for description in HEATPUMP_SWITCHES:
             if coordinator.get_param(description.param_id) is not None:
-                entities.append(EconetNextSwitch(coordinator, description, device_id="heatpump"))
+                entities.append(EconextSwitch(coordinator, description, device_id="heatpump"))
             else:
                 _LOGGER.debug(
                     "Skipping heat pump switch %s - parameter %s not found",
@@ -80,7 +80,7 @@ async def async_setup_entry(
                 param_id = circuit.settings_param
                 if param_id and coordinator.get_param(param_id) is not None:
                     # Create a copy of the description with the actual param_id
-                    circuit_desc = EconetSwitchEntityDescription(
+                    circuit_desc = EconextSwitchEntityDescription(
                         key=description.key,
                         param_id=param_id,
                         device_type=description.device_type,
@@ -89,7 +89,7 @@ async def async_setup_entry(
                         bit_position=description.bit_position,
                         invert_logic=description.invert_logic,
                     )
-                    entities.append(EconetNextSwitch(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
+                    entities.append(EconextSwitch(coordinator, circuit_desc, device_id=f"circuit_{circuit_num}"))
                 else:
                     _LOGGER.debug(
                         "Skipping Circuit %s switch %s - parameter %s not found",
@@ -101,13 +101,13 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class EconetNextSwitch(EconetNextEntity, SwitchEntity):
-    """Representation of an ecoNET Next switch entity."""
+class EconextSwitch(EconextEntity, SwitchEntity):
+    """Representation of an ecoNEXT switch entity."""
 
     def __init__(
         self,
-        coordinator: EconetNextCoordinator,
-        description: EconetSwitchEntityDescription,
+        coordinator: EconextCoordinator,
+        description: EconextSwitchEntityDescription,
         device_id: str | None = None,
     ) -> None:
         """Initialize the switch entity."""

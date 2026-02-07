@@ -1,7 +1,7 @@
 [project]
-name = "econet-next"
+name = "econext"
 version = "0.1.0"
-description = "ecoNET Next Home Assistant integration"
+description = "ecoNEXT Home Assistant integration"
 requires-python = ">=3.13.2"
 dependencies = ["aiohttp>=3.9.0"]
 

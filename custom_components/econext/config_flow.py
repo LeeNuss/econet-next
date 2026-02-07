@@ -1,4 +1,4 @@
-"""Config flow for ecoNET Next integration."""
+"""Config flow for ecoNEXT integration."""
 
 import logging
 from typing import Any
@@ -9,7 +9,7 @@ from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import voluptuous as vol
 
-from .api import EconetConnectionError, EconetNextApi
+from .api import EconextConnectionError, EconextApi
 from .const import DEFAULT_PORT, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,8 +22,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class EconetNextConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for ecoNET Next."""
+class EconextConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for ecoNEXT."""
 
     VERSION = 1
 
@@ -31,7 +31,7 @@ class EconetNextConfigFlow(ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         """Get the options flow for this handler."""
-        return EconetNextOptionsFlow(config_entry)
+        return EconextOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial step."""
@@ -40,7 +40,7 @@ class EconetNextConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 info = await self._async_validate_input(user_input)
-            except EconetConnectionError:
+            except EconextConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:
                 _LOGGER.exception("Unexpected exception")
@@ -69,7 +69,7 @@ class EconetNextConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 await self._async_validate_input(user_input)
-            except EconetConnectionError:
+            except EconextConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:
                 _LOGGER.exception("Unexpected exception")
@@ -96,7 +96,7 @@ class EconetNextConfigFlow(ConfigFlow, domain=DOMAIN):
     async def _async_validate_input(self, data: dict[str, Any]) -> dict[str, Any]:
         """Validate the user input and return device info."""
         session = async_get_clientsession(self.hass)
-        api = EconetNextApi(
+        api = EconextApi(
             host=data[CONF_HOST],
             port=data[CONF_PORT],
             session=session,
@@ -105,8 +105,8 @@ class EconetNextConfigFlow(ConfigFlow, domain=DOMAIN):
         return await api.async_test_connection()
 
 
-class EconetNextOptionsFlow(OptionsFlow):
-    """Handle options flow for ecoNET Next."""
+class EconextOptionsFlow(OptionsFlow):
+    """Handle options flow for ecoNEXT."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize options flow."""
