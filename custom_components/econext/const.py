@@ -104,6 +104,15 @@ HEATPUMP_WORK_MODE_OPTIONS: list[str] = list(HEATPUMP_WORK_MODE_MAPPING.values()
 
 HEATPUMP_WORK_MODE_REVERSE: dict[str, int] = {v: k for k, v in HEATPUMP_WORK_MODE_MAPPING.items()}
 
+# HP status work mode - API parameter 1350 (read-only)
+HP_STATUS_WORK_MODE_MAPPING: dict[int, str] = {
+    0: "standby",
+    1: "heating",
+    3: "cooling",
+}
+
+HP_STATUS_WORK_MODE_OPTIONS: list[str] = list(HP_STATUS_WORK_MODE_MAPPING.values())
+
 # DHW mode - API parameter 119
 DHW_MODE_MAPPING: dict[int, str] = {
     0: "off",
@@ -454,6 +463,15 @@ HEATPUMP_SENSORS: tuple[EconextSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         icon="mdi:thermometer-auto",
         precision=0,
+    ),
+    EconextSensorEntityDescription(
+        key="hp_status_work_mode",
+        param_id="1350",
+        device_type=DeviceType.HEATPUMP,
+        device_class=SensorDeviceClass.ENUM,
+        icon="mdi:heat-pump-outline",
+        options=HP_STATUS_WORK_MODE_OPTIONS,
+        value_map=HP_STATUS_WORK_MODE_MAPPING,
     ),
 )
 

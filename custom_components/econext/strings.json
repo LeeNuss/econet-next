@@ -173,6 +173,14 @@
             "target_temperature": {
                 "name": "Target temperature"
             },
+            "hp_status_work_mode": {
+                "name": "Work mode status",
+                "state": {
+                    "standby": "Standby",
+                    "heating": "Heating",
+                    "cooling": "Cooling"
+                }
+            },
             "silent_mode_schedule_sunday_decoded": {
                 "name": "Silent mode schedule Sunday (decoded)"
             },

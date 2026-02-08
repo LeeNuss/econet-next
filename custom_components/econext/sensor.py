@@ -331,7 +331,7 @@ class EconextSensor(EconextEntity, SensorEntity):
 
         # Apply value mapping for enum sensors
         if self._description.value_map is not None:
-            return self._description.value_map.get(int(value))
+            return self._description.value_map.get(int(value), str(int(value)))
 
         # Apply precision if specified
         if self._description.precision is not None and isinstance(value, (int, float)):

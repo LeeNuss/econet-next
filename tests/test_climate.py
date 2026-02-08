@@ -422,7 +422,7 @@ class TestCircuitClimate:
 
     def test_hvac_action_cooling(self, coordinator: EconextCoordinator) -> None:
         """Test HVAC action when HP is in cooling mode."""
-        coordinator.data["1350"]["value"] = 2  # HPStatusWorkMode = cooling
+        coordinator.data["1350"]["value"] = 3  # HPStatusWorkMode = cooling
 
         circuit = CIRCUITS[2]
         entity = CircuitClimate(

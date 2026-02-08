@@ -557,7 +557,7 @@ class CircuitClimate(EconextEntity, ClimateEntity):
         Uses three HP status parameters instead of season/hysteresis logic:
         1. HPStatusCircPStat{N} -- per-circuit pump running (0=off, >0=on)
         2. HPStatusHdwHeatStat  -- DHW loading (circuits on standby)
-        3. HPStatusWorkMode     -- heating (1) vs cooling (2) vs standby (0)
+        3. HPStatusWorkMode     -- heating (1) vs cooling (3) vs standby (0)
         """
         work_state = self._get_work_state()
         if work_state == CircuitWorkState.OFF:
@@ -573,10 +573,10 @@ class CircuitClimate(EconextEntity, ClimateEntity):
         if hdw_param is not None and int(hdw_param.get("value", 0)) > 0:
             return HVACAction.IDLE
 
-        # HP work mode: 0=standby, 1=heating, 2=cooling
+        # HP work mode: 0=standby, 1=heating, 3=cooling
         hp_mode_param = self.coordinator.get_param("1350")
         hp_mode = int(hp_mode_param.get("value", 0)) if hp_mode_param else 0
-        if hp_mode == 2:
+        if hp_mode == 3:
             return HVACAction.COOLING
         if hp_mode >= 1:
             return HVACAction.HEATING
