@@ -72,6 +72,93 @@ class TestControllerNumbersDefinition:
         assert summer_off.native_max_value == 24
 
 
+    def test_min_work_time_config(self) -> None:
+        """Test min work time number has correct configuration."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_work_time")
+
+        assert desc.param_id == "498"
+        assert desc.native_unit_of_measurement == "min"
+        assert desc.native_min_value == 0
+        assert desc.native_max_value == 120
+        assert desc.native_step == 1
+
+    def test_min_break_time_config(self) -> None:
+        """Test min break time number has correct configuration."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_break_time")
+
+        assert desc.param_id == "499"
+        assert desc.native_unit_of_measurement == "min"
+        assert desc.native_min_value == 0
+        assert desc.native_max_value == 120
+        assert desc.native_step == 1
+
+    def test_compressor_min_starts_config(self) -> None:
+        """Test compressor min starts number has correct configuration."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "compressor_min_starts")
+
+        assert desc.param_id == "503"
+        assert desc.native_min_value == 0
+        assert desc.native_max_value == 100
+        assert desc.native_step == 1
+
+
+class TestAntiCyclingNumbers:
+    """Test anti-cycling timer number entities."""
+
+    def test_min_work_time_value(self, coordinator: EconextCoordinator) -> None:
+        """Test min work time reads value from fixture."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_work_time")
+        number = EconextNumber(coordinator, desc)
+
+        # From fixture, param 498 (minWorkTime) = 0
+        assert number.native_value == 0.0
+
+    def test_min_break_time_value(self, coordinator: EconextCoordinator) -> None:
+        """Test min break time reads value from fixture."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_break_time")
+        number = EconextNumber(coordinator, desc)
+
+        # From fixture, param 499 (minBreakTime) = 0
+        assert number.native_value == 0.0
+
+    def test_min_work_time_uses_api_range(self, coordinator: EconextCoordinator) -> None:
+        """Test min work time uses min/max from API data."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_work_time")
+        number = EconextNumber(coordinator, desc)
+
+        # From fixture, param 498 has minv=0, maxv=120
+        assert number.native_min_value == 0.0
+        assert number.native_max_value == 120.0
+
+    def test_compressor_min_starts_fallback_range(self, coordinator: EconextCoordinator) -> None:
+        """Test compressor min starts uses fallback when API range is 0-0."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "compressor_min_starts")
+        number = EconextNumber(coordinator, desc)
+
+        # From fixture, param 503 has minv=0, maxv=0 (invalid range)
+        # Should fall back to description values
+        assert number.native_min_value == 0
+        assert number.native_max_value == 100
+
+    @pytest.mark.asyncio
+    async def test_set_min_work_time(self, coordinator: EconextCoordinator) -> None:
+        """Test setting min work time value."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_work_time")
+        number = EconextNumber(coordinator, desc)
+
+        await number.async_set_native_value(10.0)
+        coordinator.async_set_param.assert_called_once_with("498", 10)
+
+    @pytest.mark.asyncio
+    async def test_set_min_break_time(self, coordinator: EconextCoordinator) -> None:
+        """Test setting min break time value."""
+        desc = next(n for n in CONTROLLER_NUMBERS if n.key == "min_break_time")
+        number = EconextNumber(coordinator, desc)
+
+        await number.async_set_native_value(5.0)
+        coordinator.async_set_param.assert_called_once_with("499", 5)
+
+
 class TestEconextNumber:
     """Test the EconextNumber class."""
 

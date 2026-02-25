@@ -280,6 +280,15 @@
             "summer_mode_off": {
                 "name": "Summer mode off"
             },
+            "min_work_time": {
+                "name": "Min compressor work time"
+            },
+            "min_break_time": {
+                "name": "Min compressor break time"
+            },
+            "compressor_min_starts": {
+                "name": "Compressor min starts setting"
+            },
             "target_temperature": {
                 "name": "Target temperature"
             },

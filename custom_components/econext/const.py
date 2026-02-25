@@ -376,6 +376,33 @@ CONTROLLER_NUMBERS: tuple[EconextNumberEntityDescription, ...] = (
         native_min_value=0,  # Fallback only
         native_max_value=24,  # Fallback only
     ),
+    # Anti-cycling timers - prevent compressor short-cycling
+    EconextNumberEntityDescription(
+        key="min_work_time",
+        param_id="498",
+        native_unit_of_measurement="min",
+        icon="mdi:timer-play",
+        native_min_value=0,
+        native_max_value=120,
+        native_step=1,
+    ),
+    EconextNumberEntityDescription(
+        key="min_break_time",
+        param_id="499",
+        native_unit_of_measurement="min",
+        icon="mdi:timer-pause",
+        native_min_value=0,
+        native_max_value=120,
+        native_step=1,
+    ),
+    EconextNumberEntityDescription(
+        key="compressor_min_starts",
+        param_id="503",
+        icon="mdi:counter",
+        native_min_value=0,
+        native_max_value=100,
+        native_step=1,
+    ),
 )
 
 
